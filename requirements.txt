@@ -13,6 +13,6 @@ python-dotenv
 google-genai
 
 # 배포에 필요한 패키지
-gunicorn==21.2.0  # WSGI HTTP 서버
-whitenoise==6.5.0  # 정적 파일 서빙 도구
-dj-database-url==2.1.0  # 데이터베이스 URL 구문 분석
+# gunicorn==21.2.0  # WSGI HTTP 서버
+# whitenoise==6.5.0  # 정적 파일 서빙 도구
+# dj-database-url==2.1.0  # 데이터베이스 URL 구문 분석

@@ -205,7 +205,6 @@ sequenceDiagram
     GeminiAPI-->>GeminiLLM: 생성된 답변 텍스트
     GeminiLLM-->>RAGSystem: 답변 전달
     RAGSystem-->>User: AI가 생성한 답변 보여주기
-end
 ```
 
 ### `_construct_prompt` 자세히 들여다보기: LLM을 위한 맞춤 정보 패키지 🎁

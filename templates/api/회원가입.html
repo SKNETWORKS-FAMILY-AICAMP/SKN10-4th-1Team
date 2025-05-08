@@ -117,22 +117,22 @@
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-20">
                 <div class="flex items-center">
-                    <a href="index.html" class="flex items-center text-3xl font-bold text-sky-600">
+                    <a href="{% url 'api:homepage' %}" class="flex items-center text-3xl font-bold text-sky-600">
                         <i class="bi bi-clipboard2-pulse-fill mr-2.5"></i>
                         <span class="tracking-tight">메디리서치 AI</span>
                     </a>
                 </div>
                 <nav class="hidden md:flex space-x-2 items-center">
-                    <a href="index.html" class="text-gray-600 hover:text-sky-600 hover:bg-sky-50 px-4 py-2 rounded-md text-base font-medium transition-colors">
+                    <a href="{% url 'api:homepage' %}" class="text-gray-600 hover:text-sky-600 hover:bg-sky-50 px-4 py-2 rounded-md text-base font-medium transition-colors">
                         <i class="bi bi-house-door mr-1"></i>HOME
                     </a>
-                    <a href="chatbot.html" class="text-gray-600 hover:text-sky-600 hover:bg-sky-50 px-4 py-2 rounded-md text-base font-medium transition-colors">
+                    <a href="{% url 'api:search_path' %}" class="text-gray-600 hover:text-sky-600 hover:bg-sky-50 px-4 py-2 rounded-md text-base font-medium transition-colors">
                         <i class="bi bi-chat-dots mr-1"></i>AI 검색
                     </a>
-                    <a href="login.html" class="text-gray-600 hover:text-sky-600 hover:bg-sky-50 px-4 py-2 rounded-md text-base font-medium transition-colors">
+                    <a href="{% url 'api:login' %}" class="text-gray-600 hover:text-sky-600 hover:bg-sky-50 px-4 py-2 rounded-md text-base font-medium transition-colors">
                         <i class="bi bi-box-arrow-in-right mr-1"></i>로그인
                     </a>
-                    <a href="signup.html" class="text-sky-600 border-b-2 border-sky-600 px-4 py-2 text-base font-medium" aria-current="page">
+                    <a href="{% url 'api:signup' %}" class="text-sky-600 border-b-2 border-sky-600 px-4 py-2 text-base font-medium" aria-current="page">
                         <i class="bi bi-person-plus-fill mr-1.5"></i>회원가입
                     </a>
                 </nav>
@@ -165,7 +165,7 @@
                 </h2>
                 <p class="mt-2 text-center text-sm text-slate-600">
                     계정이 이미 있으신가요?
-                    <a href="login.html" class="font-medium text-sky-600 hover:text-sky-500 hover:underline">
+                    <a href="{% url 'api:login' %}" class="font-medium text-sky-600 hover:text-sky-500 hover:underline">
                         로그인하기
                     </a>
                 </p>

@@ -214,7 +214,7 @@ sequenceDiagram
     VectorStore->>SimilarityCalc: (질문 임베딩, 각 논문 임베딩) 코사인 유사도 계산 요청
     SimilarityCalc-->>VectorStore: 유사도 점수들
     VectorStore-->>UserQuery: 상위 K개 유사 논문 목록 반환
-end
+
 ```
 
 ### 그래프 검색 (`get_related_nodes`, `find_article_connections`)의 비밀

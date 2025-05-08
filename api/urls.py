@@ -13,4 +13,6 @@ urlpatterns = [
     path('signup/', views.signup, name="signup"),
     # search/ 경로도 search_view에 매핑
     path('search/', views.search_view, name='search_path'),
+    # search/document_info/ 경로 추가
+    path('search/document_info/', views.document_info_view, name='search_document_info'),
 ]

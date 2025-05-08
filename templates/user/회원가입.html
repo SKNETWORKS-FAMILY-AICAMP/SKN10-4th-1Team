@@ -170,7 +170,8 @@
                     </a>
                 </p>
             </div>
-            <form id="signupForm" class="mt-8 space-y-6" action="#" method="POST" novalidate>
+            <form id="signupForm" class="mt-8 space-y-6" action="/user/signup/" method="POST" novalidate>
+                <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
                 <div>
                     <label for="full-name" class="block text-sm font-medium text-slate-700 mb-1">이름</label>
                     <div class="relative">
@@ -535,8 +536,8 @@
 
                 if (isValid) {
                     console.log('Form submitted successfully');
-                    alert('회원가입 양식이 제출되었습니다! (실제 제출 기능은 구현되지 않았습니다)');
-                    // signupForm.submit(); // Uncomment to allow actual form submission
+                    alert('회원가입 양식이 제출되었습니다!');
+                    signupForm.submit(); // Uncomment to allow actual form submission
                 } else {
                     console.log('Form validation failed');
                 }

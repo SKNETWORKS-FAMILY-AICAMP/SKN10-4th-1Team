@@ -23,19 +23,20 @@ API 엔드포인트를 이해하기 위해 우체국을 한번 떠올려 볼까�
 
 ```mermaid
 graph LR
-    A[사용자 (챗봇 화면)] -- 1. 질문 전송 (HTTP 요청) --> B(웹 서버);
-    B -- 2. Django URL 라우팅 --> C[URL 패턴 일치 확인 (urls.py)];
-    C -- 3. 해당 뷰 함수 호출 --> D[뷰 함수 실행 (views.py)];
-    D -- 4. RAG 파이프라인 호출 --> E([HybridGraphFlow 전문가팀]);
-    E -- 5. 답변 생성 --> D;
-    D -- 6. 응답 준비 (JSON) --> B;
-    B -- 7. 답변 전달 (HTTP 응답) --> A;
+    A[사용자 챗봇 화면] -->|1. 질문 전송| B(웹 서버)
+    B -->|2. Django URL 라우팅| C[URL 패턴 일치 확인]
+    C -->|3. 해당 뷰 함수 호출| D[뷰 함수 실행]
+    D -->|4. RAG 파이프라인 호출| E([HybridGraphFlow 전문가팀])
+    E -->|5. 답변 생성| D
+    D -->|6. 응답 준비| B
+    B -->|7. 답변 전달| A
 
     style A fill:#A6E3E9,stroke:#333,stroke-width:2px
     style B fill:#F9ED69,stroke:#333,stroke-width:2px
     style C fill:#F08A5D,stroke:#333,stroke-width:2px
     style D fill:#B2F7EF,stroke:#333,stroke-width:2px
     style E fill:#FFB6C1,stroke:#333,stroke-width:2px
+
 ```
 
 ## 우리 프로젝트의 창구 만들기: `urls.py`와 `views.py`
@@ -217,7 +218,7 @@ sequenceDiagram
     RAGFlow-->>Views: (처리 후) 여기 답변과 관련 자료입니다!
     Views-->>DjangoServer: (JSON으로 포장해서) 처리 결과입니다!
     DjangoServer-->>UserClient: (화면에 표시할 수 있게) JSON 응답 전달!
-end
+
 ```
 이처럼 `urls.py`와 `views.py`는 Django라는 잘 짜인 시스템 안에서 외부 요청을 받아 우리 프로젝트 내부의 핵심 로직(`HybridGraphFlow`, `Neo4jVectorSearch`)과 연결해주는 매우 중요한 역할을 합니다.
 

@@ -135,55 +135,46 @@
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
+    {% csrf_token %}
 
     <!-- Header -->
-    <header class="bg-white shadow-md sticky top-0 z-50">
+    <header class="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-50">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
+            <div class="flex items-center justify-between h-20">
                 <div class="flex items-center">
-                    <a href="{% url 'api:homepage' %}" class="flex items-center text-2xl font-bold text-sky-600">
-                        <i class="bi bi-clipboard2-pulse-fill mr-2"></i>
-                        <span>메디리서치 AI</span>
+                    <a href="{% url 'api:homepage' %}" class="flex items-center text-3xl font-bold text-sky-600">
+                        <i class="bi bi-clipboard2-pulse-fill mr-2.5"></i>
+                        <span class="tracking-tight">메디리서치 AI</span>
                     </a>
                 </div>
-                <nav class="hidden md:flex space-x-6 items-center">
-                    <a href="{% url 'api:homepage' %}" class="text-gray-600 hover:text-sky-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                        <i class="bi bi-house-door mr-1"></i>HOME
+                <nav class="hidden md:flex space-x-2 items-center">
+                    <a href="{% url 'api:homepage' %}" class="text-gray-600 hover:text-sky-600 hover:bg-sky-50 px-4 py-2 rounded-md text-base font-medium transition-colors">
+                        <i class="bi bi-house-door-fill mr-1"></i>HOME
                     </a>
-                    <a href="{% url 'api:search_path' %}" class="text-sky-600 border-b-2 border-sky-600 px-3 py-2 text-sm font-medium" aria-current="page">
+                    <a href="{% url 'api:search_path' %}" class="text-sky-600 border-b-2 border-sky-600 px-4 py-2 text-base font-medium" aria-current="page">
                         <i class="bi bi-chat-dots mr-1"></i>AI 검색
                     </a>
-                    <a href="{% url 'api:login' %}" class="text-gray-600 hover:text-sky-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                    <a href="{% url 'api:login' %}" class="text-gray-600 hover:text-sky-600 hover:bg-sky-50 px-4 py-2 rounded-md text-base font-medium transition-colors">
                         <i class="bi bi-box-arrow-in-right mr-1"></i>로그인
                     </a>
-                    <a href="{% url 'api:signup' %}" class="bg-sky-600 text-white hover:bg-sky-700 px-4 py-2 rounded-md text-sm font-medium transition-colors">
-                        <i class="bi bi-person-plus mr-1"></i>회원가입
+                    <a href="{% url 'api:signup' %}" class="bg-sky-600 text-white hover:bg-sky-700 px-5 py-2.5 rounded-lg text-base font-medium transition-colors shadow-sm hover:shadow-md">
+                        <i class="bi bi-person-plus-fill mr-1.5"></i>회원가입
                     </a>
                 </nav>
                 <div class="md:hidden">
-                    <button type="button" class="text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-sky-500" aria-expanded="false" id="mobileMenuButton">
+                    <button id="mobileMenuButton" type="button" class="text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-sky-500" aria-expanded="false">
                         <span class="sr-only">Open main menu</span>
-                        <i class="bi bi-list text-2xl"></i>
+                        <i class="bi bi-list text-3xl"></i>
                     </button>
                 </div>
             </div>
-            <!-- Mobile Menu (hidden by default) -->
-            <div id="mobileMenu" class="md:hidden hidden bg-white border-t border-gray-200">
-                <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                    <a href="{% url 'api:homepage' %}" class="block text-gray-600 hover:text-sky-600 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium transition-colors">
-                        <i class="bi bi-house-door mr-1"></i>HOME
-                    </a>
-                    <a href="{% url 'api:search_path' %}" class="block text-sky-600 bg-sky-50 px-3 py-2 rounded-md text-base font-medium" aria-current="page">
-                        <i class="bi bi-chat-dots mr-1"></i>AI 검색
-                    </a>
-                    <a href="{% url 'api:login' %}" class="block text-gray-600 hover:text-sky-600 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium transition-colors">
-                        <i class="bi bi-box-arrow-in-right mr-1"></i>로그인
-                    </a>
-                    <a href="{% url 'api:signup' %}" class="block bg-sky-600 text-white hover:bg-sky-700 px-3 py-2 rounded-md text-base font-medium transition-colors mt-2">
-                        <i class="bi bi-person-plus mr-1"></i>회원가입
-                    </a>
-                </div>
-            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="md:hidden hidden bg-white shadow-lg absolute w-full">
+            <a href="{% url 'api:homepage' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-house-door-fill mr-2"></i>HOME</a>
+            <a href="{% url 'api:search_path' %}" class="block text-sky-600 px-4 py-3 text-base font-medium border-l-4 border-sky-600 bg-sky-50"><i class="bi bi-chat-dots mr-2"></i>AI 검색</a>
+            <a href="{% url 'api:login' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-box-arrow-in-right mr-2"></i>로그인</a>
+            <a href="{% url 'api:signup' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-person-plus-fill mr-2"></i>회원가입</a>
         </div>
     </header>
 

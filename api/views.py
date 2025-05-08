@@ -61,7 +61,7 @@ def search_view(request: HttpRequest) -> HttpResponse:
             return JsonResponse({'error': f'오류 발생: {str(e)}'}, status=500)
     
     # GET 요청 시 검색 페이지 렌더링
-    return render(request, 'api/1746606340126-b7fmp4d.html', context)
+    return render(request, 'api/chatbot.html', context)
 
 # 선택한 문서의 관련 정보 제공 API
 def document_info_view(request: HttpRequest) -> JsonResponse:

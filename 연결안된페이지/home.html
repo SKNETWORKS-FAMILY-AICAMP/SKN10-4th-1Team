@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>메디리서치 AI | Home</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f0f4f8; /* Lighter slate for track */
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8; /* slate-400 */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b; /* slate-500 */
+        }
+
+        body {
+            font-family: 'Noto Sans KR', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f8fafc; /* bg-slate-50 */
+            color: #1e293b; /* text-slate-800 */
+            scroll-behavior: smooth;
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%); /* light sky to very light sky */
+        }
+        
+        .hero-gradient-darker {
+             background: linear-gradient(135deg, #7dd3fc 0%, #0ea5e9 100%); /* sky-300 to sky-500 */
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .feature-card {
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+
+        .section-title {
+            font-weight: 700;
+            color: #0f172a; /* slate-900 */
+        }
+        
+        .btn-primary {
+            @apply bg-sky-600 text-white hover:bg-sky-700 focus:ring-sky-500;
+        }
+        .btn-secondary {
+            @apply bg-slate-200 text-slate-700 hover:bg-slate-300 focus:ring-slate-400;
+        }
+        .btn {
+            @apply px-6 py-3 rounded-lg font-semibold shadow-md transition-all duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-offset-2;
+        }
+
+        /* Mobile menu basic toggle */
+        .mobile-menu {
+            display: none;
+        }
+        .mobile-menu.active {
+            display: block;
+        }
+        
+        /* Animation for elements appearing on scroll */
+        .fade-in-section {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .fade-in-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center">
+                    <a href="index.html" class="flex items-center text-3xl font-bold text-sky-600">
+                        <i class="bi bi-clipboard2-pulse-fill mr-2.5"></i>
+                        <span class="tracking-tight">메디리서치 AI</span>
+                    </a>
+                </div>
+                <nav class="hidden md:flex space-x-2 items-center">
+                    <a href="index.html" class="text-sky-600 border-b-2 border-sky-600 px-4 py-2 text-base font-medium" aria-current="page">
+                        <i class="bi bi-house-door-fill mr-1"></i>HOME
+                    </a>
+                    <a href="chatbot.html" class="text-gray-600 hover:text-sky-600 hover:bg-sky-50 px-4 py-2 rounded-md text-base font-medium transition-colors">
+                        <i class="bi bi-chat-dots mr-1"></i>AI 검색
+                    </a>
+                    <a href="#login" class="text-gray-600 hover:text-sky-600 hover:bg-sky-50 px-4 py-2 rounded-md text-base font-medium transition-colors">
+                        <i class="bi bi-box-arrow-in-right mr-1"></i>로그인
+                    </a>
+                    <a href="#signup" class="bg-sky-600 text-white hover:bg-sky-700 px-5 py-2.5 rounded-lg text-base font-medium transition-colors shadow-sm hover:shadow-md">
+                        <i class="bi bi-person-plus-fill mr-1.5"></i>회원가입
+                    </a>
+                </nav>
+                <div class="md:hidden">
+                    <button id="mobileMenuButton" type="button" class="text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-sky-500" aria-expanded="false">
+                        <span class="sr-only">Open main menu</span>
+                        <i class="bi bi-list text-3xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="mobile-menu md:hidden bg-white shadow-lg absolute w-full">
+            <a href="index.html" class="block text-sky-600 px-4 py-3 text-base font-medium border-l-4 border-sky-600 bg-sky-50"><i class="bi bi-house-door-fill mr-2"></i>HOME</a>
+            <a href="chatbot.html" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-chat-dots mr-2"></i>AI 검색</a>
+            <a href="#login" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-box-arrow-in-right mr-2"></i>로그인</a>
+            <a href="#signup" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-person-plus-fill mr-2"></i>회원가입</a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+        <!-- Hero Section -->
+        <section class="hero-gradient py-20 md:py-32 fade-in-section">
+            <div class="container mx-auto px-6 lg:px-8 text-center">
+                <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-sky-700 mb-6 leading-tight">
+                    의학 연구의 미래, <br class="sm:hidden">AI와 함께 탐색하세요
+                </h1>
+                <p class="text-lg sm:text-xl text-slate-700 max-w-3xl mx-auto mb-10 leading-relaxed">
+                    메디리서치 AI는 최첨단 하이브리드 검색 기술을 통해 방대한 의학 논문 속에서<br>
+                    가장 정확하고 연관성 높은 정보를 신속하게 찾아드립니다.
+                </p>
+                <div class="space-x-4">
+                    <a href="chatbot.html" class="btn btn-primary text-lg">
+                        <i class="bi bi-search-heart-fill mr-2"></i>AI 검색 시작하기
+                    </a>
+                    <a href="#features" class="btn btn-secondary text-lg">
+                        <i class="bi bi-lightbulb-fill mr-2"></i>주요 기능 보기
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="py-16 md:py-24 bg-white fade-in-section">
+            <div class="container mx-auto px-6 lg:px-8">
+                <div class="text-center mb-12 md:mb-16">
+                    <span class="text-sky-600 font-semibold tracking-wide uppercase">Our Advantages</span>
+                    <h2 class="section-title text-3xl sm:text-4xl mt-2">메디리서치 AI만의 특별한 기능</h2>
+                    <p class="text-slate-600 mt-4 max-w-2xl mx-auto text-lg">
+                        복잡한 의학 연구 과정을 단순화하고, 더 깊이 있는 통찰력을 제공합니다.
+                    </p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="feature-card bg-slate-50 p-8 rounded-xl shadow-lg border border-slate-200">
+                        <div class="text-sky-500 mb-5">
+                            <i class="bi bi-bounding-box text-5xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-semibold text-slate-800 mb-3">지능형 하이브리드 검색</h3>
+                        <p class="text-slate-600 leading-relaxed">
+                            벡터 검색의 의미적 유사성과 그래프 검색의 관계적 맥락을 결합하여, 질문 의도에 가장 부합하는 다각적인 검색 결과를 제공합니다.
+                        </p>
+                    </div>
+                    <div class="feature-card bg-slate-50 p-8 rounded-xl shadow-lg border border-slate-200">
+                        <div class="text-sky-500 mb-5">
+                            <i class="bi bi-graph-up-arrow text-5xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-semibold text-slate-800 mb-3">최신 연구 동향 분석</h3>
+                        <p class="text-slate-600 leading-relaxed">
+                            실시간으로 업데이트되는 방대한 논문 데이터베이스를 기반으로 특정 질병, 치료법, 약물에 대한 최신 연구 동향과 핵심 정보를 빠르게 파악할 수 있습니다.
+                        </p>
+                    </div>
+                    <div class="feature-card bg-slate-50 p-8 rounded-xl shadow-lg border border-slate-200">
+                        <div class="text-sky-500 mb-5">
+                            <i class="bi bi-eye-fill text-5xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-semibold text-slate-800 mb-3">직관적인 정보 시각화</h3>
+                        <p class="text-slate-600 leading-relaxed">
+                            검색된 논문 간의 연관성, 주요 키워드, 연구자 네트워크 등을 시각적으로 표현하여 복잡한 정보를 한눈에 이해하도록 돕습니다.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works Section -->
+        <section class="py-16 md:py-24 hero-gradient fade-in-section">
+            <div class="container mx-auto px-6 lg:px-8">
+                <div class="text-center mb-12 md:mb-16">
+                    <span class="text-sky-700 font-semibold tracking-wide uppercase">Easy Steps</span>
+                    <h2 class="section-title text-3xl sm:text-4xl mt-2 text-sky-800">메디리서치 AI, 이렇게 사용하세요</h2>
+                     <p class="text-slate-700 mt-4 max-w-2xl mx-auto text-lg">
+                        단 몇 단계만으로 필요한 의학 정보를 손쉽게 얻을 수 있습니다.
+                    </p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 text-center">
+                    <div class="p-6">
+                        <div class="bg-white p-6 rounded-full shadow-lg inline-block mb-6 border-4 border-sky-200">
+                            <i class="bi bi-chat-quote-fill text-5xl text-sky-600"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-slate-800 mb-2">1. 질문 입력</h3>
+                        <p class="text-slate-700">
+                            찾고 싶은 의학 정보나 연구 주제에 대해 자연어로 질문하세요. (예: "당뇨병 최신 치료법 알려줘")
+                        </p>
+                    </div>
+                    <div class="p-6">
+                        <div class="bg-white p-6 rounded-full shadow-lg inline-block mb-6 border-4 border-sky-200">
+                            <i class="bi bi-robot text-5xl text-sky-600"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-slate-800 mb-2">2. AI 분석 및 검색</h3>
+                        <p class="text-slate-700">
+                            AI가 질문을 분석하고, 하이브리드 검색 엔진을 통해 최적의 논문과 정보를 탐색합니다.
+                        </p>
+                    </div>
+                    <div class="p-6">
+                        <div class="bg-white p-6 rounded-full shadow-lg inline-block mb-6 border-4 border-sky-200">
+                            <i class="bi bi-file-earmark-text-fill text-5xl text-sky-600"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-slate-800 mb-2">3. 결과 확인</h3>
+                        <p class="text-slate-700">
+                            요약된 답변과 함께 관련 논문 목록, 주요 정보, 연관 관계 등을 확인하고 연구에 활용하세요.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Call to Action Section -->
+        <section class="py-16 md:py-24 bg-slate-800 text-white fade-in-section">
+            <div class="container mx-auto px-6 lg:px-8 text-center">
+                <i class="bi bi-stars text-5xl text-amber-400 mb-6"></i>
+                <h2 class="text-3xl sm:text-4xl font-bold mb-6">지금 바로 의학 연구의 혁신을 경험하세요!</h2>
+                <p class="text-lg text-slate-300 max-w-xl mx-auto mb-10">
+                    메디리서치 AI가 여러분의 연구 파트너가 되어 드리겠습니다.<br>
+                    더 빠르고, 더 스마트한 연구를 시작해보세요.
+                </p>
+                <a href="chatbot.html" class="btn bg-white text-sky-700 hover:bg-sky-50 focus:ring-sky-300 text-lg shadow-xl hover:shadow-2xl">
+                    <i class="bi bi-play-circle-fill mr-2"></i>AI 검색 무료 체험
+                </a>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-12">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                <div>
+                    <a href="index.html" class="flex items-center text-2xl font-bold text-sky-500 mb-3">
+                        <i class="bi bi-clipboard2-pulse-fill mr-2"></i>
+                        <span>메디리서치 AI</span>
+                    </a>
+                    <p class="text-sm">의학 연구의 효율성을 높이는 AI 기반 하이브리드 검색 솔루션입니다.</p>
+                </div>
+                <div>
+                    <h5 class="text-slate-200 font-semibold mb-3 text-lg">바로가기</h5>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="index.html" class="hover:text-sky-400 transition-colors">Home</a></li>
+                        <li><a href="chatbot.html" class="hover:text-sky-400 transition-colors">AI 검색</a></li>
+                        <li><a href="#features" class="hover:text-sky-400 transition-colors">주요 기능</a></li>
+                        <li><a href="#faq" class="hover:text-sky-400 transition-colors">FAQ (준비중)</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="text-slate-200 font-semibold mb-3 text-lg">문의하기</h5>
+                    <ul class="space-y-2 text-sm">
+                        <li><i class="bi bi-envelope-fill mr-2 text-sky-500"></i> contact@mediresearch.ai</li>
+                        <li><i class="bi bi-telephone-fill mr-2 text-sky-500"></i> +82 02-1234-5678</li>
+                        <li><i class="bi bi-geo-alt-fill mr-2 text-sky-500"></i> 서울특별시 강남구 테헤란로</li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="border-slate-700 my-8">
+            <div class="text-center text-sm">
+                <p>&copy; 2024 메디리서치 AI. All Rights Reserved.</p>
+                <p class="text-xs mt-1">본 시스템은 정보 제공 목적으로만 사용되며, 전문적인 의학적 조언을 대체할 수 없습니다.</p>
+                <div class="mt-3 space-x-4">
+                    <a href="#privacy" class="hover:text-sky-400 transition-colors text-xs">개인정보처리방침</a>
+                    <a href="#terms" class="hover:text-sky-400 transition-colors text-xs">이용약관</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobileMenuButton');
+        const mobileMenu = document.getElementById('mobileMenu');
+        if (mobileMenuButton && mobileMenu) {
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('active');
+                const isExpanded = mobileMenuButton.getAttribute('aria-expanded') === 'true' || false;
+                mobileMenuButton.setAttribute('aria-expanded', !isExpanded);
+                // Change icon on toggle
+                const icon = mobileMenuButton.querySelector('i');
+                if (mobileMenu.classList.contains('active')) {
+                    icon.classList.remove('bi-list');
+                    icon.classList.add('bi-x-lg');
+                } else {
+                    icon.classList.remove('bi-x-lg');
+                    icon.classList.add('bi-list');
+                }
+            });
+        }
+
+        // Fade-in sections on scroll
+        const sections = document.querySelectorAll('.fade-in-section');
+        const observerOptions = {
+            root: null, // relative to document viewport
+            rootMargin: '0px',
+            threshold: 0.1 // 10% of item height in view
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    // Optional: unobserve after animation to save resources
+                    // observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        sections.forEach(section => {
+            observer.observe(section);
+        });
+
+        // Smooth scroll for internal links (redundant if body scroll-behavior: smooth is set, but good fallback)
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const hrefAttribute = this.getAttribute('href');
+                // Ensure it's not just a placeholder href="#"
+                if (hrefAttribute && hrefAttribute.length > 1) { 
+                    const targetElement = document.querySelector(hrefAttribute);
+                    if (targetElement) {
+                        e.preventDefault();
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                        // Close mobile menu if open and link is clicked
+                        if (mobileMenu && mobileMenu.classList.contains('active')) {
+                           mobileMenu.classList.remove('active');
+                           mobileMenuButton.setAttribute('aria-expanded', 'false');
+                           const icon = mobileMenuButton.querySelector('i');
+                           icon.classList.remove('bi-x-lg');
+                           icon.classList.add('bi-list');
+                        }
+                    }
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>

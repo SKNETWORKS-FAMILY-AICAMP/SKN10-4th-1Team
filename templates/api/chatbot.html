@@ -161,10 +161,27 @@
                     </a>
                 </nav>
                 <div class="md:hidden">
-                    <button type="button" class="text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-sky-500" aria-expanded="false">
+                    <button type="button" class="text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-sky-500" aria-expanded="false" id="mobileMenuButton">
                         <span class="sr-only">Open main menu</span>
                         <i class="bi bi-list text-2xl"></i>
                     </button>
+                </div>
+            </div>
+            <!-- Mobile Menu (hidden by default) -->
+            <div id="mobileMenu" class="md:hidden hidden bg-white border-t border-gray-200">
+                <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                    <a href="{% url 'api:homepage' %}" class="block text-gray-600 hover:text-sky-600 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium transition-colors">
+                        <i class="bi bi-house-door mr-1"></i>HOME
+                    </a>
+                    <a href="{% url 'api:search_path' %}" class="block text-sky-600 bg-sky-50 px-3 py-2 rounded-md text-base font-medium" aria-current="page">
+                        <i class="bi bi-chat-dots mr-1"></i>AI 검색
+                    </a>
+                    <a href="{% url 'api:login' %}" class="block text-gray-600 hover:text-sky-600 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium transition-colors">
+                        <i class="bi bi-box-arrow-in-right mr-1"></i>로그인
+                    </a>
+                    <a href="{% url 'api:signup' %}" class="block bg-sky-600 text-white hover:bg-sky-700 px-3 py-2 rounded-md text-base font-medium transition-colors mt-2">
+                        <i class="bi bi-person-plus mr-1"></i>회원가입
+                    </a>
                 </div>
             </div>
         </div>
@@ -196,21 +213,23 @@
                             질문에 따라 자동으로 최적의 검색 전략을 선택합니다.
                         </div>
                     </div>
-                </div>
-                
-                <div id="loadingIndicator" class="loading text-center p-5 hidden">
-                    <div role="status" class="flex items-center justify-center">
-                        <svg aria-hidden="true" class="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-sky-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
-                            <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0492C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
-                        </svg>
-                        <span class="ml-3 text-slate-600">응답 생성 중...</span>
+                    <!-- Loading Indicator: Moved inside chatContainer and styled like an assistant message -->
+                    <div id="loadingIndicator" class="flex justify-start mb-4 bg-slate-100 p-3 sm:p-4 rounded-xl shadow-sm max-w-[85%] hidden">
+                        <div role="status" class="flex items-center">
+                            <svg aria-hidden="true" class="w-5 h-5 text-slate-400 animate-spin fill-sky-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
+                                <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0492C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
+                            </svg>
+                            <span class="ml-2 text-sm text-slate-700">응답 생성 중...</span>
+                        </div>
                     </div>
                 </div>
-
+                
+                <!-- Loading Indicator removed from here -->
+                
                 <div class="mt-4">
                     <div class="flex items-center bg-white p-1.5 rounded-lg shadow-lg border border-slate-200">
-                        <input type="text" id="userInput" class="flex-grow p-3 border-none focus:ring-0 text-slate-700 placeholder-slate-400" placeholder="여기에 질문을 입력하세요...">
+                        <input type="text" id="userInput" class="flex-grow p-3 border-none focus:ring-0 text-slate-700 placeholder-slate-400 input-focus-effect" placeholder="여기에 질문을 입력하세요...">
                         <button id="sendButton" class="bg-sky-600 hover:bg-sky-700 text-white font-semibold py-3 px-5 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2">
                             <i class="bi bi-send-fill"></i>
                         </button>
@@ -255,18 +274,10 @@
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <p class="text-sm">&copy; 2024 메디리서치 AI. 모든 권리 보유.</p>
             <p class="text-xs mt-1">본 시스템은 정보 제공 목적으로만 사용되며, 전문적인 의학적 조언을 대체할 수 없습니다.</p>
-            <!-- <div class="mt-2 space-x-4">
-                <a href="#" class="hover:text-sky-400 transition-colors">회사소개</a>
-                <a href="#" class="hover:text-sky-400 transition-colors">이용약관</a>
-                <a href="#" class="hover:text-sky-400 transition-colors">개인정보처리방침</a>
-            </div> -->
         </div>
     </footer>
 
     <script>
-        // Tailwind config (optional, for theme customization if needed in JS)
-        // tailwind.config = { theme: { extend: { colors: { /* ... */ } } } }
-
         document.addEventListener('DOMContentLoaded', function() {
             const chatContainer = document.getElementById('chatContainer');
             const userInput = document.getElementById('userInput');
@@ -274,12 +285,13 @@
             const retrievedDocs = document.getElementById('retrievedDocs');
             const relatedInfo = document.getElementById('relatedInfo');
             const connections = document.getElementById('connections');
-            const loadingIndicator = document.getElementById('loadingIndicator');
+            const loadingIndicator = document.getElementById('loadingIndicator'); // This now refers to the one inside chatContainer
             const queryTypeBadge = document.getElementById('queryTypeBadge');
+            const mobileMenuButton = document.getElementById('mobileMenuButton');
+            const mobileMenu = document.getElementById('mobileMenu');
 
-            let chatHistory = []; // 대화 기록
+            let chatHistory = []; 
 
-            // marked.js & highlight.js 설정
             marked.setOptions({
                 highlight: function(code, lang) {
                     const language = hljs.getLanguage(lang) ? lang : 'plaintext';
@@ -291,7 +303,7 @@
 
             function updateQueryTypeBadge(queryType) {
                 queryTypeBadge.textContent = `검색 모드: ${getQueryTypeLabel(queryType)}`;
-                queryTypeBadge.className = 'px-3 py-1.5 text-sm font-semibold rounded-full shadow-sm transition-all'; // Base classes
+                queryTypeBadge.className = 'px-3 py-1.5 text-sm font-semibold rounded-full shadow-sm transition-all'; 
                 
                 if (queryType === 'vector') {
                     queryTypeBadge.classList.add('bg-blue-100', 'text-blue-700');
@@ -316,8 +328,8 @@
             function getSearchTypeIcon(searchType) {
                 if (searchType === 'graph') {
                     return '<i class="bi bi-diagram-3-fill text-emerald-500" title="그래프 검색 결과"></i>';
-                } else {
-                    return '<i class="bi bi-vector-pen text-blue-500" title="벡터 검색 결과"></i>';
+                } else { // vector or hybrid (which might primarily use vector display)
+                    return '<i class="bi bi-vector-pen text-blue-500" title="벡터/하이브리드 검색 결과"></i>';
                 }
             }
 
@@ -335,32 +347,16 @@
                 
                 appendMessage(query, 'user');
                 userInput.value = '';
-                loadingIndicator.style.display = 'flex'; // Show loading (using flex for centering)
+                
+                // Show loading indicator (now as a chat message)
+                loadingIndicator.classList.remove('hidden');
                 chatContainer.scrollTop = chatContainer.scrollHeight;
 
-                // Simulate API call (replace with actual fetch)
-                // setTimeout(() => {
-                //     const mockResponse = {
-                //         answer: `입력하신 "${query}"에 대한 모의 응답입니다. \n\n\`\`\`python\nprint("Hello, World!")\n\`\`\`\n\n다음은 목록입니다:\n- 항목 1\n- 항목 2\n- 항목 3`,
-                //         messages: [...chatHistory, {role: 'user', content: query}, {role: 'assistant', content: '모의 응답'}],
-                //         query_type: Math.random() > 0.66 ? 'vector' : (Math.random() > 0.5 ? 'graph' : 'hybrid'),
-                //         retrieved_docs: [
-                //             { title: "비만과 관련된 유전자 연구", pmid: "12345", similarity: 0.88, original_similarity: 0.88, search_type: "vector" },
-                //             { title: "고혈압 치료의 최신 동향", pmid: "67890", similarity: 0.85, original_similarity: 0.75, llm_score: 0.92, search_type: "hybrid" },
-                //             { title: "당뇨병 환자 식단 가이드라인", pmid: "11223", similarity: 0.82, search_type: "graph", relation_strength: 0.7 }
-                //         ],
-                //         related_info: null, // Will be fetched on doc click
-                //         connections: null // Will be fetched on doc click
-                //     };
-                //     handleApiResponse(mockResponse);
-                // }, 1500);
-                // return; // End of mock logic
-                
                 fetch('/search/?v=' + new Date().getTime(), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRFToken': getCookie('csrftoken') || '' // Ensure CSRF token is present or handle if not needed
+                        'X-CSRFToken': getCookie('csrftoken') || ''
                     },
                     body: JSON.stringify({
                         query: query,
@@ -369,7 +365,7 @@
                 })
                 .then(response => {
                     if (!response.ok) {
-                        return response.json().then(err => { throw err; }); // Try to parse error JSON
+                        return response.json().then(err => { throw err; });
                     }
                     return response.json();
                 })
@@ -378,31 +374,23 @@
                 })
                 .catch(error => {
                     console.error('오류:', error);
-                    loadingIndicator.style.display = 'none';
+                    loadingIndicator.classList.add('hidden'); // Hide loading indicator on error
                     let errorMessage = '요청 처리 중 오류가 발생했습니다. 다시 시도해 주세요.';
-                    if (error && error.detail) { // Handle backend's DRF error format
+                    if (error && error.detail) {
                         errorMessage = `서버 오류: ${error.detail}`;
                     } else if (error && error.message) {
                         errorMessage = `오류: ${error.message}`;
                     }
-                    appendMessage(errorMessage, 'assistant', true); // Mark as error message
+                    appendMessage(errorMessage, 'assistant', true);
                 });
             }
 
             function handleApiResponse(data) {
-                loadingIndicator.style.display = 'none';
+                loadingIndicator.classList.add('hidden'); // Hide loading indicator
                 appendMessage(data.answer, 'assistant');
                 chatHistory = data.messages;
                 updateQueryTypeBadge(data.query_type || 'unknown');
                 updateRetrievedDocs(data.retrieved_docs || []);
-                
-                // If there are retrieved docs, automatically select the first one
-                // and fetch its detailed info if not already provided in the main response.
-                // The current backend logic seems to return related_info and connections
-                // separately via fetchDocumentInfo, so we'll stick to that.
-                // If data.related_info or data.connections were part of the main response for the *first* doc,
-                // you could update them here directly.
-                // For now, updateRetrievedDocs will trigger fetchDocumentInfo for the first doc.
             }
             
             function appendMessage(text, sender, isError = false) {
@@ -410,6 +398,7 @@
                 messageWrapper.classList.add('message', 'mb-4', 'flex');
 
                 const messageDiv = document.createElement('div');
+                // Tailwind classes for general message bubble styling
                 messageDiv.classList.add('p-3', 'sm:p-4', 'rounded-xl', 'shadow-sm', 'max-w-[85%]', 'text-sm', 'sm:text-base');
 
                 if (sender === 'user') {
@@ -431,37 +420,35 @@
                 }
                 
                 messageWrapper.appendChild(messageDiv);
-                chatContainer.appendChild(messageWrapper);
+                chatContainer.insertBefore(messageWrapper, loadingIndicator); // Insert new message before the loading indicator
                 chatContainer.scrollTop = chatContainer.scrollHeight;
             }
             
             function updateRetrievedDocs(docs) {
                 if (!docs || docs.length === 0) {
                     retrievedDocs.innerHTML = '<p class="text-sm text-slate-500 p-3 bg-slate-50 rounded-md">검색된 논문이 없습니다.</p>';
-                    // Clear related info and connections if no docs
                     relatedInfo.innerHTML = '<p class="text-slate-500">선택된 논문의 관련 정보가 여기에 표시됩니다.</p>';
                     connections.innerHTML = '<p class="text-slate-500">선택된 논문과 연결된 다른 논문들이 여기에 표시됩니다.</p>';
                     return;
                 }
                 
-                retrievedDocs.innerHTML = ''; // Clear previous results
+                retrievedDocs.innerHTML = ''; 
                 docs.forEach((doc, index) => {
                     const docCard = document.createElement('div');
                     docCard.classList.add('doc-card', 'p-3', 'rounded-lg', 'border', 'border-slate-200', 'hover:shadow-md', 'transition-all', 'duration-200', 'cursor-pointer', 'bg-white');
                     
-                    const searchType = doc.search_type || 'vector'; // Default to vector if not specified
+                    const searchType = doc.search_type || 'vector'; 
                     docCard.classList.add(searchType + '-result');
-                    if (index === 0) docCard.classList.add('active'); // Activate first card by default
+                    if (index === 0) docCard.classList.add('active'); 
                     
                     const searchTypeIcon = getSearchTypeIcon(searchType);
                     
                     let scoreHtml = '';
-                    if (doc.similarity) {
+                    if (doc.similarity !== undefined && doc.similarity !== null) {
                         scoreHtml += `최종 점수: ${doc.similarity.toFixed(2)}`;
-                    } else if (doc.score) { // Fallback for different score field names
+                    } else if (doc.score !== undefined && doc.score !== null) { 
                          scoreHtml += `최종 점수: ${doc.score.toFixed(2)}`;
                     }
-
 
                     docCard.innerHTML = `
                         <div class="flex justify-between items-start">
@@ -470,20 +457,27 @@
                         </div>
                         <p class="text-xs text-slate-500 mb-1">PMID: ${doc.pmid}</p>
                         ${scoreHtml ? `<p class="text-xs text-slate-600 font-medium mb-1">${scoreHtml}</p>` : ''}
-                        ${doc.original_similarity ? 
+                        ${(doc.original_similarity !== undefined && doc.original_similarity !== null) ? 
                           `<p class="text-xs text-slate-500">
                             <span title="초기 벡터 유사도">벡터: ${doc.original_similarity.toFixed(2)}</span>
-                            ${doc.llm_score ? ` | <span title="LLM 재평가 점수">LLM: ${doc.llm_score.toFixed(2)}</span>` : ''}
+                            ${(doc.llm_score !== undefined && doc.llm_score !== null) ? ` | <span title="LLM 재평가 점수">LLM: ${doc.llm_score.toFixed(2)}</span>` : ''}
                            </p>` 
                           : ''}
                     `;
                     
                     docCard.addEventListener('click', () => {
-                        document.querySelectorAll('.doc-card').forEach(card => {
+                        document.querySelectorAll('.doc-card.active').forEach(card => {
                             card.classList.remove('active', 'bg-sky-50', 'border-l-sky-500', 'bg-blue-50', 'border-l-blue-500', 'bg-emerald-50', 'border-l-emerald-500');
-                            // Reset specific active styles if they were more complex
                         });
                         docCard.classList.add('active');
+                        // Re-apply specific active styles based on type
+                        if (docCard.classList.contains('vector-result')) {
+                           docCard.classList.add('bg-blue-50', 'border-l-blue-500');
+                        } else if (docCard.classList.contains('graph-result')) {
+                           docCard.classList.add('bg-emerald-50', 'border-l-emerald-500');
+                        } else { // Default or hybrid
+                           docCard.classList.add('bg-sky-50', 'border-l-sky-500');
+                        }
                         fetchDocumentInfo(doc.pmid);
                     });
                     
@@ -491,7 +485,7 @@
                 });
                 
                 if (docs.length > 0) {
-                    fetchDocumentInfo(docs[0].pmid); // Load info for the first (and now active) document
+                    fetchDocumentInfo(docs[0].pmid); 
                 }
             }
             
@@ -506,24 +500,6 @@
                     </div>`;
                 relatedInfo.innerHTML = loadingHtml;
                 connections.innerHTML = loadingHtml;
-                
-                // Simulate API call (replace with actual fetch)
-                // setTimeout(() => {
-                //     const mockDocInfo = {
-                //         related_info: {
-                //             authors: [{full_name: "김 연구"}, {full_name:"박 분석"}],
-                //             keywords: [{term: "유전자"}, {term: "비만"}],
-                //             journal: { name: "국제 의학 저널", issn: "1234-5678"}
-                //         },
-                //         connections: [
-                //             { pmid: "98765", title: "다른 관련 논문 A", shared_node: { type: "Keyword", name: "비만"}, source_relation: "연구주제", target_relation: "관련연구" },
-                //             { pmid: "54321", title: "또 다른 논문 B", shared_node: { type: "Author", name: "김 연구"}, source_relation: "공동저자", target_relation: "참고논문" }
-                //         ]
-                //     };
-                //     updateRelatedInfo(mockDocInfo.related_info);
-                //     updateConnections(mockDocInfo.connections);
-                // }, 1000);
-                // return; // End of mock logic
                 
                 fetch(`/search/document_info/?pmid=${pmid}&v=${new Date().getTime()}`, {
                     method: 'GET',
@@ -616,7 +592,7 @@
                         if (sourceRel && targetRel) {
                             relationText += `<br><small class="text-slate-500">(${sourceRel} <i class="bi bi-arrow-right-short"></i> ${targetRel})</small>`;
                         }
-                    } else if (conn.connection_description) { // Fallback for older formats
+                    } else if (conn.connection_description) { 
                         relationText = conn.connection_description;
                     } else {
                         relationText = '연결 정보 없음';
@@ -651,15 +627,13 @@
 
             // Initial state
             updateQueryTypeBadge('unknown');
-            // Add a mobile menu toggle if you have one
-            const mobileMenuButton = document.querySelector('.md\\:hidden button');
-            if (mobileMenuButton) {
-                const mobileMenu = document.querySelector('nav.hidden'); // Or a dedicated mobile menu element
+            
+            // Mobile menu toggle
+            if (mobileMenuButton && mobileMenu) {
                 mobileMenuButton.addEventListener('click', () => {
-                    // This is a placeholder. You'd implement proper menu toggling here.
-                    // For example, by toggling a 'hidden' class on the mobile menu.
-                    // For simplicity, I'm not adding a full mobile menu implementation.
-                    console.log("Mobile menu button clicked. Implement toggle logic.");
+                    mobileMenu.classList.toggle('hidden');
+                    const isExpanded = mobileMenuButton.getAttribute('aria-expanded') === 'true' || false;
+                    mobileMenuButton.setAttribute('aria-expanded', !isExpanded);
                 });
             }
         });

@@ -219,7 +219,7 @@ sequenceDiagram
     Note right of AnswerGenerator: GeminiLLM 사용
     AnswerGenerator-->>HGF: (작업 노트 업데이트) 최종 답변 생성!
     HGF-->>User: 답변 전달
-end
+
 ```
 이처럼 `QueryState`(작업 노트)가 각 전문가 사이를 오가며 정보가 누적되고, 최종적으로 답변이 만들어집니다.
 

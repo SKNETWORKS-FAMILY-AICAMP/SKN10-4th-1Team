@@ -93,3 +93,13 @@ def document_info_view(request: HttpRequest) -> JsonResponse:
     except Exception as e:
         print(f"문서 정보 요청 오류: {e}")
         return JsonResponse({'error': f'문서 정보를 가져오는 중 오류가 발생했습니다: {str(e)}'}, status=500)
+
+
+def home(request) :
+    return render(request, 'api/home.html')
+
+def login(request) :
+    return render(request, 'api/로그인.html')
+
+def signup(request) :
+    return render(request, 'api/회원가입.html')

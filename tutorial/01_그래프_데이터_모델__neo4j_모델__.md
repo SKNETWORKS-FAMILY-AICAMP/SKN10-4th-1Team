@@ -30,7 +30,7 @@ graph LR
     P -- PUBLISHED_IN (게재됨) --> J[Journal: 학술지]
     P -- HAS_KEYWORD (포함함) --> K[Keyword: 키워드]
 
-    subgraph 주요 정보 단위 (노드)
+    subgraph 주요 정보 단위 [노드]
         A
         P
         J
@@ -41,6 +41,7 @@ graph LR
     style P fill:#F9ED69,stroke:#333,stroke-width:2px
     style J fill:#F08A5D,stroke:#333,stroke-width:2px
     style K fill:#B2F7EF,stroke:#333,stroke-width:2px
+
 ```
 
 위 그림에서 볼 수 있듯이,
@@ -175,7 +176,7 @@ sequenceDiagram
     NeomodelLib->>Neo4jDB: Cypher 쿼리 (AUTHORED_BY 관계 생성)
     Neo4jDB-->>NeomodelLib: 연결 완료
     NeomodelLib-->>UserCode: 모든 작업 완료
-end
+
 ```
 
 ## 스키마 설치: Neo4j에게 우리 모델 알려주기

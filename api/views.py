@@ -42,16 +42,24 @@ def search_view(request: HttpRequest) -> HttpResponse:
                         except Exception as e:
                             print(f"쿼리 결과의 연결 관계 가져오기 오류: {e}")
                 
+                # 기본 응답 데이터 구성
                 response_data = {
                     'answer': result['answer'],
-                    'messages': result['messages'],
+                    'messages': result['messages'],  # 주의: messages는 모든 메시지 기록 포함
                     'retrieved_docs': result['retrieved_docs'],
                     'related_info': result['related_info'],
                     'connections': connections,  # 추가로 가져온 연결 관계 혹은 빈 리스트
                     'query_type': result['query_type'], 
                     'graph_context': result.get('graph_context', {}),
-                    'citations': result.get('citations', []),
+                    'citations': result.get('citations', [])
                 }
+                
+                # 추가 응답이 있으면 포함 (Tavily 검색 결과)
+                if 'additional_answer' in result and result['additional_answer']:
+                    print(f"추가 응답이 생성되었습니다: {len(result['additional_answer'])} 문자")
+                    response_data['additional_answer'] = result['additional_answer']
+                    if 'tavily_results' in result:
+                        response_data['tavily_results'] = result['tavily_results']
                 
                 return JsonResponse(response_data)
             else:
@@ -61,7 +69,7 @@ def search_view(request: HttpRequest) -> HttpResponse:
             return JsonResponse({'error': f'오류 발생: {str(e)}'}, status=500)
     
     # GET 요청 시 검색 페이지 렌더링
-    return render(request, 'api/1746606340126-b7fmp4d.html', context)
+    return render(request, 'api/chatbot.html', context)
 
 # 선택한 문서의 관련 정보 제공 API
 def document_info_view(request: HttpRequest) -> JsonResponse:
@@ -93,3 +101,13 @@ def document_info_view(request: HttpRequest) -> JsonResponse:
     except Exception as e:
         print(f"문서 정보 요청 오류: {e}")
         return JsonResponse({'error': f'문서 정보를 가져오는 중 오류가 발생했습니다: {str(e)}'}, status=500)
+
+
+def home(request) :
+    return render(request, 'api/home.html')
+
+def login(request) :
+    return render(request, 'api/로그인.html')
+
+def signup(request) :
+    return render(request, 'api/회원가입.html')

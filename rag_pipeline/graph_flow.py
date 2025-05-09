@@ -1,4 +1,4 @@
-from typing import Dict, List, Any, Tuple, Optional, TypedDict, Annotated, Union
+from typing import Dict, List, Any, Tuple, Optional, TypedDict, Annotated, Union, Literal
 import os
 from langchain_core.messages import HumanMessage, AIMessage
 from langchain_core.runnables import RunnablePassthrough
@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 # 로컬 모듈 임포트
 from rag_pipeline.vector_store import Neo4jVectorSearch
 from rag_pipeline.llm import GeminiLLM
+from rag_pipeline.tavily_search import TavilySearch
 
 # 환경 변수 로드
 load_dotenv()
@@ -24,6 +25,12 @@ class QueryState(TypedDict):
     graph_context: Dict[str, Any]  # 그래프 컨텍스트
     final_answer: str  # 최종 답변
     citations: List[Dict]  # 인용 정보
+    
+    # 응답 검증 및 추가 검색 관련 필드
+    response_quality: Literal["good", "insufficient", "unverified"]  # 응답 품질 평가
+    tavily_results: List[Dict]  # Tavily 검색 결과
+    additional_answer: str  # 추가 답변
+    iterations: int  # 반복 횟수 (무한 루프 방지)
 
 
 class HybridGraphFlow:
@@ -37,6 +44,7 @@ class HybridGraphFlow:
         """HybridGraphFlow 초기화"""
         self.vector_search = Neo4jVectorSearch()
         self.llm = GeminiLLM()
+        self.tavily_search = TavilySearch()
         
         # LangGraph 워크플로우 구성
         self.workflow = self._build_graph()
@@ -55,6 +63,11 @@ class HybridGraphFlow:
         graph.add_node("gather_related_nodes", self._gather_related_nodes)
         graph.add_node("extract_graph_context", self._extract_graph_context)
         graph.add_node("generate_response", self._generate_response)
+        
+        # 응답 검증 및 추가 검색 노드 추가
+        graph.add_node("evaluate_response", self._evaluate_response)
+        graph.add_node("tavily_search", self._tavily_search)
+        graph.add_node("generate_additional_response", self._generate_additional_response)
         
         # 조건부 엣지 및 워크플로우 정의
         graph.add_conditional_edges(
@@ -76,7 +89,23 @@ class HybridGraphFlow:
         graph.add_edge("gather_related_nodes", "extract_graph_context")
         graph.add_edge("extract_graph_context", "generate_response")
         
-        graph.add_edge("generate_response", END)
+        # 응답 생성 후 검증 및 추가 검색 워크플로우 추가
+        graph.add_edge("generate_response", "evaluate_response")
+        
+        # 응답 품질에 따른 조건부 엣지 추가
+        graph.add_conditional_edges(
+            "evaluate_response",
+            lambda state: state["response_quality"],
+            {
+                "good": END,  # 좋은 응답이면 종료
+                "insufficient": "tavily_search",  # 불충분한 응답이면 Tavily 검색
+                "unverified": END  # 검증 불가능한 경우 (예: API 키 누락) 그냥 종료
+            }
+        )
+        
+        # Tavily 검색 후 추가 응답 생성
+        graph.add_edge("tavily_search", "generate_additional_response")
+        graph.add_edge("generate_additional_response", END)
         
         # 시작 노드 설정
         graph.set_entry_point("determine_query_type")
@@ -356,23 +385,24 @@ class HybridGraphFlow:
         graph_context = state.get("graph_context", {})
         messages = state.get("messages", [])
         
-        # 챗 히스토리 구성
-        chat_history = messages[:-1] if messages else []
+        # 챗 히스토리를 사용하지 않도록 변경
+        # chat_history = messages[:-1] if messages else []
         
         if not combined_results:
             final_answer = "검색 결과가 없습니다. 다른 질문을 시도해 주세요."
             return {
                 **state,
-                "final_answer": final_answer
+                "final_answer": final_answer,
+                "response_quality": "insufficient"  # 결과가 없으면 불충분한 응답으로 표시
             }
         
-        # LLM 응답 생성
+        # LLM 응답 생성 (챗 히스토리 사용 안함)
         final_answer = self.llm.generate_response(
             query=query,
             retrieved_docs=combined_results,
             related_info=related_nodes,
             graph_context=graph_context,
-            chat_history=chat_history
+            chat_history=[]  # 빈 배열로 전달하여 히스토리 사용 안함
         )
         
         # 인용 정보 추출
@@ -393,7 +423,11 @@ class HybridGraphFlow:
             **state,
             "final_answer": final_answer,
             "citations": citations,
-            "messages": new_messages
+            "messages": new_messages,
+            "response_quality": "unverified",  # 평가 전에는 unverified로 설정
+            "tavily_results": [],  # 초기화
+            "additional_answer": "",  # 초기화
+            "iterations": state.get("iterations", 0)  # 반복 횟수 유지 또는 초기화
         }
     
     def query(self, user_query: str, chat_history: Optional[List[Dict[str, str]]] = None) -> Dict[str, Any]:
@@ -426,23 +460,218 @@ class HybridGraphFlow:
             "related_nodes": {},
             "graph_context": {},
             "final_answer": "",
-            "citations": []
+            "citations": [],
+            "response_quality": "unverified",
+            "tavily_results": [],
+            "additional_answer": "",
+            "iterations": 0
         }
         
         # 워크플로우 실행
         result = self.workflow.invoke(initial_state)
         
-        # 결과 반환
-        return {
-            "answer": result["final_answer"],
-            "messages": result["messages"],
+        # 결과 반환 - 최종 출력 형식 수정
+        # messages에는 이미 모든 응답이 포함되어 있음(기본 응답 + 추가 응답)
+        response = {
+            "answer": result["final_answer"],  # generate_response에서 생성된 원래 응답
+            "messages": result["messages"],  # 추가 응답도 포함됨
             "query_type": result["query_type"],
             "retrieved_docs": result["combined_results"],
             "related_info": result["related_nodes"],
             "graph_context": result["graph_context"],
             "citations": result["citations"]
         }
+        
+        # 추가 응답 정보는 분석 목적으로 전달
+        if result.get("additional_answer"):
+            response["additional_answer"] = result["additional_answer"]
+            response["tavily_results"] = result.get("tavily_results", [])
+            print(f"[추가 응답 생성함] {len(result.get('tavily_results', []))} 개의 추가 문서 검색됨")
+        
+        return response
 
+
+    def _evaluate_response(self, state: QueryState) -> QueryState:
+        """
+        LLM 응답의 적절성을 평가
+        
+        Args:
+            state: 현재 상태
+            
+        Returns:
+            평가 결과가 추가된 상태
+        """
+        query = state.get("query", "")
+        final_answer = state.get("final_answer", "")
+        combined_results = state.get("combined_results", [])
+        iterations = state.get("iterations", 0)
+        
+        # 반복 횟수 증가 (무한 루프 방지)
+        iterations += 1
+        if iterations > 2:  # 최대 2회 반복
+            return {
+                **state,
+                "response_quality": "good",  # 강제 종료
+                "iterations": iterations
+            }
+        
+        # Tavily API 키가 설정되지 않은 경우 검증 건너뛰기
+        if not self.tavily_search.api_key:
+            return {
+                **state,
+                "response_quality": "good",  # API 키가 없으면 그냥 좋은 응답으로 처리
+                "iterations": iterations
+            }
+        
+        # 응답이 비어있거나 매우 짧은 경우
+        if not final_answer or len(final_answer) < 50:
+            return {
+                **state,
+                "response_quality": "insufficient",
+                "iterations": iterations
+            }
+        
+        # LLM을 사용하여 응답의 적절성 평가
+        eval_prompt = f"""
+        다음 의학 질문과 그에 대한 응답을 분석하세요:
+        
+        질문: {query}
+        
+        응답: {final_answer}
+        
+        이 응답이 다음 기준을 만족하는지 객관적으로 평가해주세요:
+        1. 의학적으로 정확한 정보를 제공하는가?
+        2. 질문에 충분히 답변했는가?
+        3. 추가 정보나 더 많은 의학 연구 결과가 필요한가?
+        
+        응답 품질을 "good" 또는 "insufficient" 중 하나로 평가해주세요.
+        - good: 응답이 충분하고 정확하며 추가 정보가 필요하지 않음
+
+        - insufficient: 응답이 불완전하거나 추가 의학 정보가 필요함
+
+        
+        평가 결과만 "good" 또는 "insufficient"로 답변하세요. 다른 설명은 필요하지 않습니다.
+        """
+        
+        try:
+            # LLM 호출하여 응답 품질 평가
+            quality_assessment = self.llm.model.generate_content(eval_prompt).text.strip().lower()
+            
+            # 평가 결과 해석 - assessment 자체를 화면에 출력되지 않도록 처리
+            if "insufficient" in quality_assessment:
+                response_quality = "insufficient"
+            else:
+                response_quality = "good"
+                
+            # final_answer는 유지하고 response_quality만 업데이트
+            return {
+                **state,
+                "response_quality": response_quality,
+                "iterations": iterations
+            }
+            
+        except Exception as e:
+            print(f"응답 평가 중 오류 발생: {e}")
+            # 오류 발생 시 무조건 좋은 응답으로 간주 (기본 동작 유지)
+            return {
+                **state,
+                "response_quality": "good",
+                "iterations": iterations
+            }
+    
+    def _tavily_search(self, state: QueryState) -> QueryState:
+        """
+        Tavily API를 사용하여 추가적인 의학 논문 검색
+        
+        Args:
+            state: 현재 상태
+            
+        Returns:
+            Tavily 검색 결과가 추가된 상태
+        """
+        query = state.get("query", "")
+        
+        # Tavily 검색 수행
+        try:
+            tavily_results = self.tavily_search.search_medical_papers(query, max_results=3)
+            return {
+                **state,
+                "tavily_results": tavily_results
+            }
+        except Exception as e:
+            print(f"Tavily 검색 중 오류 발생: {e}")
+            return {
+                **state,
+                "tavily_results": []
+            }
+    
+    def _generate_additional_response(self, state: QueryState) -> QueryState:
+        """
+        Tavily 검색 결과를 바탕으로 추가 응답 생성
+        
+        Args:
+            state: 현재 상태
+            
+        Returns:
+            추가 응답이 포함된 상태
+        """
+        query = state.get("query", "")
+        final_answer = state.get("final_answer", "")
+        tavily_results = state.get("tavily_results", [])
+        messages = state.get("messages", [])
+        
+        if not tavily_results:
+            return state  # 추가 검색 결과가 없으면 기존 상태 유지
+        
+        # Tavily 검색 결과를 LLM 입력 형식으로 변환
+        tavily_context = self.tavily_search.format_results_for_llm(tavily_results)
+        
+        # 추가 응답 생성을 위한 프롬프트 (프론트엔드에 출력되도록 수정)
+        additional_prompt = f"""
+        사용자 질문: {query}
+                
+        다음은 추가로 검색한 의학 논문 정보입니다:
+        {tavily_context}
+        
+        위 추가 정보를 바탕으로 주요 의학적 정보를 포함한 답변을 새롭게 작성해주세요.
+        이 답변은 사용자에게 직접 표시됩니다. 
+        
+        반드시 '추가 정보:'로 시작하여 사용자가 이것이 추가 응답임을 바로 알아볼 수 있도록 하세요.
+        가능한 경우 출처(PMID 또는 논문 제목)를 언급해주세요.
+        모든 내용은 한국어로 작성하고, 의학적으로 정확한 정보만 제공해야 합니다.
+        """
+        
+        try:
+            # LLM 호출하여 추가 응답 생성
+            additional_answer = self.llm.model.generate_content(additional_prompt).text
+            
+            # 추가 인용 정보 추출
+            additional_citations = [
+                {
+                    "pmid": doc.get("pmid"),
+                    "title": doc.get("title"),
+                    "search_type": "external"
+                }
+                for doc in tavily_results if doc.get("pmid") or doc.get("title")
+            ]
+            
+            # 기존 인용 정보와 병합
+            all_citations = state.get("citations", []) + additional_citations
+            
+            # 메시지 업데이트 - 추가 응답도 메시지 목록에 삽입하여 화면에 표시되도록 함
+            new_messages = list(messages)
+            new_messages.append({"role": "assistant", "content": additional_answer})
+            
+            return {
+                **state,
+                "additional_answer": additional_answer,
+                "citations": all_citations,
+                "messages": new_messages
+            }
+            
+        except Exception as e:
+            print(f"추가 응답 생성 중 오류 발생: {e}")
+            return state  # 오류 발생 시 기존 상태 유지
 
 # 테스트용
 if __name__ == "__main__":
@@ -453,3 +682,5 @@ if __name__ == "__main__":
     print(f"검색된 문서 수: {len(result['retrieved_docs'])}")
     if result['retrieved_docs']:
         print(f"첫 번째 문서: {result['retrieved_docs'][0]['title']}")
+    if result.get('additional_answer'):
+        print(f"\n추가 응답: {result['additional_answer']}")

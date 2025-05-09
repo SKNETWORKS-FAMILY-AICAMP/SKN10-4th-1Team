@@ -174,7 +174,7 @@
             <a href="{% url 'api:homepage' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-house-door-fill mr-2"></i>HOME</a>
             <a href="{% url 'api:search_path' %}" class="block text-sky-600 px-4 py-3 text-base font-medium border-l-4 border-sky-600 bg-sky-50"><i class="bi bi-chat-dots mr-2"></i>AI 검색</a>
             <a href="{% url 'user:login' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-box-arrow-in-right mr-2"></i>로그인</a>
-            <a href="{% url 'user:signup' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-person-plus-fill mr-2"></i>회원가입</a>
+            <a href="{% url 'user:signup' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-person-plus mr-2"></i>회원가입</a>
         </div>
     </header>
 
@@ -629,18 +629,18 @@
             }
 
             const nav = document.querySelector('nav.hidden.md\\:flex');
-            const isLoggedIn = {{ request.user.is_authenticated|yesno:"true,false" }}; // Django template tag to check login status
+            const isLoggedIn = '{{ request.user.is_authenticated|yesno:"true,false" }}' === 'true'; // Ensure proper string comparison
 
             if (isLoggedIn) {
                 // Remove 로그인 and 회원가입 buttons
-                const loginButton = nav.querySelector('a[href="#"]:nth-child(3)');
-                const signupButton = nav.querySelector('a[href="#"]:nth-child(4)');
+                const loginButton = nav.querySelector('a[href="{% url 'user:login' %}"]');
+                const signupButton = nav.querySelector('a[href="{% url 'user:signup' %}"]');
                 if (loginButton) loginButton.remove();
                 if (signupButton) signupButton.remove();
 
                 // Add 로그아웃 button
                 const logoutButton = document.createElement('a');
-                logoutButton.href = '/user/logout/';
+                logoutButton.href = '{% url 'user:logout' %}';
                 logoutButton.className = 'text-gray-600 hover:text-sky-600 px-3 py-2 rounded-md text-sm font-medium transition-colors';
                 logoutButton.innerHTML = '<i class="bi bi-box-arrow-right mr-1"></i>로그아웃';
                 nav.appendChild(logoutButton);

@@ -4,11 +4,15 @@ import json
 # 새로운 HybridGraphFlow 가져오기
 from rag_pipeline.graph_flow import HybridGraphFlow
 from rag_pipeline.vector_store import Neo4jVectorSearch
+from django.contrib.auth.decorators import login_required
 
 # HybridGraphFlow 인스턴스 생성 (애플리케이션 시작 시 한 번만 초기화)
 graph_rag = HybridGraphFlow()
 vector_search = Neo4jVectorSearch()
 
+
+
+@login_required(login_url='/user/login/')  # 로그인 안 돼 있으면 이 URL로 이동
 # 초기 검색 페이지 뷰
 def search_view(request: HttpRequest) -> HttpResponse:
     """

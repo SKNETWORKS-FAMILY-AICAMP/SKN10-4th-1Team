@@ -275,7 +275,7 @@
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
                 <div>
-                    <a href="index.html" class="flex items-center text-2xl font-bold text-sky-500 mb-3">
+                    <a class="flex items-center text-2xl font-bold text-sky-500 mb-3">
                         <i class="bi bi-clipboard2-pulse-fill mr-2"></i>
                         <span>메디리서치 AI</span>
                     </a>
@@ -284,11 +284,10 @@
                 <div>
                     <h5 class="text-slate-200 font-semibold mb-3 text-lg">바로가기</h5>
                     <ul class="space-y-2 text-sm">
-                        <li><a href="index.html" class="hover:text-sky-400 transition-colors">Home</a></li>
-                        <li><a href="chatbot.html" class="hover:text-sky-400 transition-colors">AI 검색</a></li>
-                         <li><a href="login.html" class="hover:text-sky-400 transition-colors">로그인</a></li>
-                        <li><a href="signup.html" class="hover:text-sky-400 transition-colors">회원가입</a></li>
-                        <li><a href="#faq" class="hover:text-sky-400 transition-colors">FAQ (준비중)</a></li>
+                        <li><a href="{% url 'api:homepage' %}" class="hover:text-sky-400 transition-colors">Home</a></li>
+                        <li><a href="{% url 'api:search_path' %}" class="hover:text-sky-400 transition-colors">AI 검색</a></li>
+                        <li><a href="{% url 'user:login' %}" class="hover:text-sky-400 transition-colors">로그인</a></li>
+                        <li><a href="{% url 'user:signup' %}" class="hover:text-sky-400 transition-colors">회원가입</a></li>
                     </ul>
                 </div>
                 <div>
@@ -296,7 +295,7 @@
                     <ul class="space-y-2 text-sm">
                         <li><i class="bi bi-envelope-fill mr-2 text-sky-500"></i> contact@mediresearch.ai</li>
                         <li><i class="bi bi-telephone-fill mr-2 text-sky-500"></i> +82 02-1234-5678</li>
-                        <li><i class="bi bi-geo-alt-fill mr-2 text-sky-500"></i> 서울특별시 강남구 테헤란로</li>
+                        <li><i class="bi bi-geo-alt-fill mr-2 text-sky-500"></i>서울 금천구 가산디지털1로 25</li>
                     </ul>
                 </div>
             </div>
@@ -304,10 +303,6 @@
             <div class="text-center text-sm">
                 <p>&copy; 2024 메디리서치 AI. All Rights Reserved.</p>
                 <p class="text-xs mt-1">본 시스템은 정보 제공 목적으로만 사용되며, 전문적인 의학적 조언을 대체할 수 없습니다.</p>
-                <div class="mt-3 space-x-4">
-                    <a href="#privacy" class="hover:text-sky-400 transition-colors text-xs">개인정보처리방침</a>
-                    <a href="#terms" class="hover:text-sky-400 transition-colors text-xs">이용약관</a>
-                </div>
             </div>
         </div>
     </footer>

@@ -1,0 +1,12 @@
+biopython
+neo4j # 또는 호환되는 최신 버전
+neomodel # 비동기 지원 및 최신 기능 활용 시 권장
+django>=4.0,<5.0 # Django 버전 명시
+langchain>=0.1.0
+langchain-openai # 또는 다른 LLM 연동 라이브러리
+langgraph>=0.0.40 # LangGraph 버전 명시
+google-generativeai>=0.4.0
+python-dotenv
+google-genai
+langchain_community
+langchain_openai

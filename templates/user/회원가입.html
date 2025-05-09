@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>메디리서치 AI | 회원가입</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f0f4f8; /* Lighter slate for track */
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8; /* slate-400 */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b; /* slate-500 */
+        }
+
+        body {
+            font-family: 'Noto Sans KR', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f8fafc; /* bg-slate-50 */
+            color: #1e293b; /* text-slate-800 */
+            scroll-behavior: smooth;
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%); /* light sky to very light sky */
+        }
+        
+        .hero-gradient-darker {
+             background: linear-gradient(135deg, #7dd3fc 0%, #0ea5e9 100%); /* sky-300 to sky-500 */
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .feature-card {
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+
+        .section-title {
+            font-weight: 700;
+            color: #0f172a; /* slate-900 */
+        }
+        
+        .btn-primary {
+            @apply bg-sky-600 text-white hover:bg-sky-700 focus:ring-sky-500;
+        }
+        .btn-secondary {
+            @apply bg-slate-200 text-slate-700 hover:bg-slate-300 focus:ring-slate-400;
+        }
+        .btn {
+            @apply px-6 py-3 rounded-lg font-semibold shadow-md transition-all duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-offset-2;
+        }
+
+        /* Mobile menu basic toggle */
+        .mobile-menu {
+            display: none;
+        }
+        .mobile-menu.active {
+            display: block;
+        }
+        
+        .fade-in-section {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .fade-in-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .signup-bg { /* Renamed from login-bg for clarity, but can be the same */
+            background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23bae6fd' fill-opacity='0.3'%3E%3Cpath d='M50 50c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10c-5.523 0-10-4.477-10-10zm0 25c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10c-5.523 0-10-4.477-10-10zM20 25c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10c-5.523 0-10-4.477-10-10z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        
+        .input-icon {
+            @apply absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400;
+        }
+        .input-field {
+            @apply appearance-none block w-full px-3 py-3 pl-10 border border-slate-300 placeholder-slate-500 text-slate-900 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 focus:z-10 sm:text-sm transition-colors;
+        }
+        .input-field-error {
+            @apply border-red-500 focus:ring-red-500 focus:border-red-500;
+        }
+        .error-message {
+            @apply text-red-500 text-xs mt-1;
+        }
+        #password-strength-bar-container {
+            @apply mt-1 h-2.5 w-full bg-slate-200 rounded-full overflow-hidden;
+        }
+        #password-strength-bar {
+            @apply h-full rounded-full transition-all duration-300 ease-in-out;
+        }
+        .strength-weak { @apply bg-red-500; }
+        .strength-medium { @apply bg-yellow-500; }
+        .strength-strong { @apply bg-green-500; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center">
+                    <a href="{% url 'api:homepage' %}" class="flex items-center text-3xl font-bold text-sky-600">
+                        <i class="bi bi-clipboard2-pulse-fill mr-2.5"></i>
+                        <span class="tracking-tight">메디리서치 AI</span>
+                    </a>
+                </div>
+                <nav class="hidden md:flex space-x-2 items-center">
+                    <a href="{% url 'api:homepage' %}" class="text-gray-600 hover:text-sky-600 hover:bg-sky-50 px-4 py-2 rounded-md text-base font-medium transition-colors">
+                        <i class="bi bi-house-door mr-1"></i>HOME
+                    </a>
+                    <a href="{% url 'api:search_path' %}" class="text-gray-600 hover:text-sky-600 hover:bg-sky-50 px-4 py-2 rounded-md text-base font-medium transition-colors">
+                        <i class="bi bi-chat-dots mr-1"></i>AI 검색
+                    </a>
+                    <a href="{% url 'user:login' %}" class="text-gray-600 hover:text-sky-600 hover:bg-sky-50 px-4 py-2 rounded-md text-base font-medium transition-colors">
+                        <i class="bi bi-box-arrow-in-right mr-1"></i>로그인
+                    </a>
+                    <a href="{% url 'user:signup' %}" class="text-sky-600 border-b-2 border-sky-600 px-4 py-2 text-base font-medium" aria-current="page">
+                        <i class="bi bi-person-plus-fill mr-1.5"></i>회원가입
+                    </a>
+                </nav>
+                <div class="md:hidden">
+                    <button id="mobileMenuButton" type="button" class="text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-sky-500" aria-expanded="false">
+                        <span class="sr-only">Open main menu</span>
+                        <i class="bi bi-list text-3xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="mobile-menu md:hidden bg-white shadow-lg absolute w-full">
+            <a href="{% url 'api:homepage' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-house-door mr-2"></i>HOME</a>
+            <a href="{% url 'api:search_path' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-chat-dots mr-2"></i>AI 검색</a>
+            <a href="{% url 'user:login' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-box-arrow-in-right mr-2"></i>로그인</a>
+            <a href="{% url 'user:signup' %}" class="block text-sky-600 px-4 py-3 text-base font-medium border-l-4 border-sky-600 bg-sky-50"><i class="bi bi-person-plus-fill mr-2"></i>회원가입</a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 signup-bg">
+        <div class="max-w-lg w-full space-y-8 bg-white p-8 sm:p-10 rounded-xl shadow-2xl transform transition-all hover:scale-[1.01] duration-300 ease-in-out border border-slate-200 fade-in-section is-visible">
+            <div>
+                <div class="flex justify-center">
+                     <i class="bi bi-person-plus text-sky-600 text-6xl"></i>
+                </div>
+                <h2 class="mt-6 text-center text-3xl font-extrabold text-slate-900">
+                    메디리서치 AI 회원가입
+                </h2>
+                <p class="mt-2 text-center text-sm text-slate-600">
+                    계정이 이미 있으신가요?
+                    <a href="{% url 'user:login' %}" class="font-medium text-sky-600 hover:text-sky-500 hover:underline">
+                        로그인하기
+                    </a>
+                </p>
+            </div>
+            <form id="signupForm" class="mt-8 space-y-6" action="/user/signup/" method="POST" novalidate>
+                <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                <div>
+                    <label for="full-name" class="block text-sm font-medium text-slate-700 mb-1">이름</label>
+                    <div class="relative">
+                        <div class="input-icon">
+                            <i class="bi bi-person-badge-fill"></i>
+                        </div>
+                        <input id="full-name" name="fullName" type="text" autocomplete="name" required
+                               class="input-field"
+                               placeholder="홍길동">
+                    </div>
+                    <p id="fullNameError" class="error-message hidden"></p>
+                </div>
+                
+                <div>
+                    <label for="email-address" class="block text-sm font-medium text-slate-700 mb-1">이메일 주소</label>
+                    <div class="relative">
+                        <div class="input-icon">
+                            <i class="bi bi-envelope-fill"></i>
+                        </div>
+                        <input id="email-address" name="email" type="email" autocomplete="email" required
+                               class="input-field"
+                               placeholder="your@email.com">
+                    </div>
+                    <p id="emailError" class="error-message hidden"></p>
+                </div>
+
+                <div>
+                    <label for="password" class="block text-sm font-medium text-slate-700 mb-1">비밀번호</label>
+                    <div class="relative">
+                         <div class="input-icon">
+                            <i class="bi bi-lock-fill"></i>
+                        </div>
+                        <input id="password" name="password" type="password" autocomplete="new-password" required
+                               class="input-field pr-10" 
+                               placeholder="••••••••">
+                        <button type="button" id="togglePassword" aria-label="비밀번호 보기/숨기기" class="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 text-slate-500 hover:text-slate-700 focus:outline-none">
+                            <i class="bi bi-eye-slash-fill"></i>
+                        </button>
+                    </div>
+                    <div id="password-strength-bar-container">
+                        <div id="password-strength-bar" style="width: 0%;"></div>
+                    </div>
+                    <p id="passwordStrengthText" class="text-xs mt-1 text-slate-500"></p>
+                    <p id="passwordError" class="error-message hidden"></p>
+                </div>
+
+                <div>
+                    <label for="confirm-password" class="block text-sm font-medium text-slate-700 mb-1">비밀번호 확인</label>
+                    <div class="relative">
+                         <div class="input-icon">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <input id="confirm-password" name="confirmPassword" type="password" autocomplete="new-password" required
+                               class="input-field"
+                               placeholder="••••••••">
+                    </div>
+                    <p id="confirmPasswordError" class="error-message hidden"></p>
+                </div>
+
+                <div class="space-y-3 pt-2">
+                    <div class="flex items-start">
+                        <div class="flex items-center h-5">
+                            <input id="terms-agree" name="termsAgree" type="checkbox" required class="focus:ring-sky-500 h-4 w-4 text-sky-600 border-slate-300 rounded">
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="terms-agree" class="font-normal text-slate-600">
+                                <a href="#terms-details" class="font-medium text-sky-600 hover:text-sky-500 hover:underline">이용약관</a>에 동의합니다. (필수)
+                            </label>
+                        </div>
+                    </div>
+                     <p id="termsError" class="error-message hidden ml-8"></p>
+                    <div class="flex items-start">
+                        <div class="flex items-center h-5">
+                            <input id="privacy-agree" name="privacyAgree" type="checkbox" required class="focus:ring-sky-500 h-4 w-4 text-sky-600 border-slate-300 rounded">
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="privacy-agree" class="font-normal text-slate-600">
+                                <a href="#privacy-details" class="font-medium text-sky-600 hover:text-sky-500 hover:underline">개인정보 수집 및 이용</a>에 동의합니다. (필수)
+                            </label>
+                        </div>
+                    </div>
+                    <p id="privacyError" class="error-message hidden ml-8"></p>
+                </div>
+
+
+                <div>
+                    <button type="submit"
+                            class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-base font-medium rounded-md text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors duration-150 ease-in-out shadow-md hover:shadow-lg transform hover:scale-105">
+                        <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                            <i class="bi bi-person-check-fill h-5 w-5 text-sky-400 group-hover:text-sky-300"></i>
+                        </span>
+                        회원가입 완료
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-12">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                <div>
+                    <a class="flex items-center text-2xl font-bold text-sky-500 mb-3">
+                        <i class="bi bi-clipboard2-pulse-fill mr-2"></i>
+                        <span>메디리서치 AI</span>
+                    </a>
+                    <p class="text-sm">의학 연구의 효율성을 높이는 AI 기반 하이브리드 검색 솔루션입니다.</p>
+                </div>
+                <div>
+                    <h5 class="text-slate-200 font-semibold mb-3 text-lg">바로가기</h5>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="{% url 'api:homepage' %}" class="hover:text-sky-400 transition-colors">Home</a></li>
+                        <li><a href="{% url 'api:search_path' %}" class="hover:text-sky-400 transition-colors">AI 검색</a></li>
+                        <li><a href="{% url 'user:login' %}" class="hover:text-sky-400 transition-colors">로그인</a></li>
+                        <li><a href="{% url 'user:signup' %}" class="hover:text-sky-400 transition-colors">회원가입</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="text-slate-200 font-semibold mb-3 text-lg">문의하기</h5>
+                    <ul class="space-y-2 text-sm">
+                        <li><i class="bi bi-envelope-fill mr-2 text-sky-500"></i> contact@mediresearch.ai</li>
+                        <li><i class="bi bi-telephone-fill mr-2 text-sky-500"></i> +82 02-1234-5678</li>
+                        <li><i class="bi bi-geo-alt-fill mr-2 text-sky-500"></i>서울 금천구 가산디지털1로 25</li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="border-slate-700 my-8">
+            <div class="text-center text-sm">
+                <p>&copy; 2024 메디리서치 AI. All Rights Reserved.</p>
+                <p class="text-xs mt-1">본 시스템은 정보 제공 목적으로만 사용되며, 전문적인 의학적 조언을 대체할 수 없습니다.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobileMenuButton');
+        const mobileMenu = document.getElementById('mobileMenu');
+        if (mobileMenuButton && mobileMenu) {
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('active');
+                const isExpanded = mobileMenuButton.getAttribute('aria-expanded') === 'true' || false;
+                mobileMenuButton.setAttribute('aria-expanded', !isExpanded);
+                const icon = mobileMenuButton.querySelector('i');
+                if (mobileMenu.classList.contains('active')) {
+                    icon.classList.remove('bi-list');
+                    icon.classList.add('bi-x-lg');
+                } else {
+                    icon.classList.remove('bi-x-lg');
+                    icon.classList.add('bi-list');
+                }
+            });
+        }
+
+        // Fade-in sections on scroll
+        const sections = document.querySelectorAll('.fade-in-section');
+        const observerOptions = {
+            root: null, 
+            rootMargin: '0px',
+            threshold: 0.1 
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                }
+            });
+        }, observerOptions);
+
+        sections.forEach(section => {
+            observer.observe(section);
+        });
+
+        // Smooth scroll for internal links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const hrefAttribute = this.getAttribute('href');
+                if (hrefAttribute && hrefAttribute.length > 1 && hrefAttribute !== '#') { 
+                    try {
+                        const targetElement = document.querySelector(hrefAttribute);
+                        if (targetElement) {
+                            e.preventDefault();
+                            targetElement.scrollIntoView({ behavior: 'smooth' });
+                            if (mobileMenu && mobileMenu.classList.contains('active')) {
+                               mobileMenu.classList.remove('active');
+                               mobileMenuButton.setAttribute('aria-expanded', 'false');
+                               const icon = mobileMenuButton.querySelector('i');
+                               icon.classList.remove('bi-x-lg');
+                               icon.classList.add('bi-list');
+                            }
+                        }
+                    } catch (error) {
+                        console.warn("Smooth scroll target not found or invalid selector:", hrefAttribute);
+                    }
+                }
+            });
+        });
+
+        // Signup Form Specific JavaScript
+        const signupForm = document.getElementById('signupForm');
+        const fullNameInput = document.getElementById('full-name');
+        const emailInput = document.getElementById('email-address');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirm-password');
+        const togglePasswordButton = document.getElementById('togglePassword');
+        const passwordStrengthBar = document.getElementById('password-strength-bar');
+        const passwordStrengthText = document.getElementById('passwordStrengthText');
+        const termsAgreeCheckbox = document.getElementById('terms-agree');
+        const privacyAgreeCheckbox = document.getElementById('privacy-agree');
+
+        // Helper to show/hide error messages
+        function showError(inputElement, messageElementId, message) {
+            const errorElement = document.getElementById(messageElementId);
+            inputElement.classList.add('input-field-error');
+            inputElement.classList.remove('focus:border-sky-500', 'focus:ring-sky-500');
+            errorElement.textContent = message;
+            errorElement.classList.remove('hidden');
+        }
+
+        function clearError(inputElement, messageElementId) {
+            const errorElement = document.getElementById(messageElementId);
+            inputElement.classList.remove('input-field-error');
+            inputElement.classList.add('focus:border-sky-500', 'focus:ring-sky-500');
+            errorElement.classList.add('hidden');
+            errorElement.textContent = '';
+        }
+
+
+        // Password visibility toggle
+        if (togglePasswordButton && passwordInput) {
+            togglePasswordButton.addEventListener('click', () => {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                const icon = togglePasswordButton.querySelector('i');
+                if (type === 'password') {
+                    icon.classList.remove('bi-eye-fill');
+                    icon.classList.add('bi-eye-slash-fill');
+                } else {
+                    icon.classList.remove('bi-eye-slash-fill');
+                    icon.classList.add('bi-eye-fill');
+                }
+            });
+        }
+        
+        // Password strength checker
+        if (passwordInput && passwordStrengthBar && passwordStrengthText) {
+            passwordInput.addEventListener('input', () => {
+                const password = passwordInput.value;
+                let strength = 0;
+                let strengthText = "";
+                let strengthClass = "";
+
+                if (password.length === 0) {
+                    strength = 0;
+                    strengthText = "";
+                    strengthClass = "";
+                } else if (password.length < 8) {
+                    strength = 1; // Weak
+                    strengthText = "약함 (8자 이상)";
+                    strengthClass = "strength-weak";
+                } else {
+                    strength = 2; // Medium by default if > 8
+                    strengthText = "보통";
+                    strengthClass = "strength-medium";
+                    if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength++;
+                    if (password.match(/[0-9]/)) strength++;
+                    if (password.match(/[^a-zA-Z0-9]/)) strength++;
+
+                    if (strength < 3) {
+                        strength = 2; strengthText = "보통 (대소문자, 숫자, 특수문자 조합 권장)"; strengthClass = "strength-medium";
+                    } else if (strength >= 4) {
+                         strength = 3; strengthText = "강함"; strengthClass = "strength-strong";
+                    }
+                }
+                
+                passwordStrengthBar.style.width = (strength * 33.33) + '%';
+                passwordStrengthBar.className = 'h-full rounded-full transition-all duration-300 ease-in-out'; // Reset classes
+                if(strengthClass) passwordStrengthBar.classList.add(strengthClass);
+                passwordStrengthText.textContent = strengthText;
+
+                if(password.length > 0 && password.length < 8) {
+                    showError(passwordInput, 'passwordError', '비밀번호는 최소 8자 이상이어야 합니다.');
+                } else {
+                    clearError(passwordInput, 'passwordError');
+                }
+            });
+        }
+
+        // Form validation
+        if (signupForm) {
+            signupForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                let isValid = true;
+
+                // Full Name validation
+                if (fullNameInput.value.trim() === '') {
+                    showError(fullNameInput, 'fullNameError', '이름을 입력해주세요.');
+                    isValid = false;
+                } else {
+                    clearError(fullNameInput, 'fullNameError');
+                }
+
+                // Email validation
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (emailInput.value.trim() === '') {
+                    showError(emailInput, 'emailError', '이메일을 입력해주세요.');
+                    isValid = false;
+                } else if (!emailRegex.test(emailInput.value.trim())) {
+                    showError(emailInput, 'emailError', '유효한 이메일 주소를 입력해주세요.');
+                    isValid = false;
+                } else {
+                    clearError(emailInput, 'emailError');
+                }
+
+                // Password validation (length already handled by strength checker for error message)
+                if (passwordInput.value.length < 8) {
+                    showError(passwordInput, 'passwordError', '비밀번호는 최소 8자 이상이어야 합니다.');
+                    isValid = false;
+                } else {
+                     clearError(passwordInput, 'passwordError'); // Clear if it was set for length
+                }
+
+                // Confirm password validation
+                if (confirmPasswordInput.value.trim() === '') {
+                    showError(confirmPasswordInput, 'confirmPasswordError', '비밀번호 확인을 입력해주세요.');
+                    isValid = false;
+                } else if (passwordInput.value !== confirmPasswordInput.value) {
+                    showError(confirmPasswordInput, 'confirmPasswordError', '비밀번호가 일치하지 않습니다.');
+                    isValid = false;
+                } else {
+                    clearError(confirmPasswordInput, 'confirmPasswordError');
+                }
+                
+                // Terms agreement
+                if (!termsAgreeCheckbox.checked) {
+                    showError(termsAgreeCheckbox, 'termsError', '이용약관에 동의해야 합니다.');
+                    // For checkboxes, direct parent or sibling might be better for error class
+                    termsAgreeCheckbox.classList.add('ring-2', 'ring-red-500');
+                    isValid = false;
+                } else {
+                    clearError(termsAgreeCheckbox, 'termsError');
+                    termsAgreeCheckbox.classList.remove('ring-2', 'ring-red-500');
+                }
+
+                // Privacy agreement
+                if (!privacyAgreeCheckbox.checked) {
+                    showError(privacyAgreeCheckbox, 'privacyError', '개인정보 수집 및 이용에 동의해야 합니다.');
+                    privacyAgreeCheckbox.classList.add('ring-2', 'ring-red-500');
+                    isValid = false;
+                } else {
+                    clearError(privacyAgreeCheckbox, 'privacyError');
+                    privacyAgreeCheckbox.classList.remove('ring-2', 'ring-red-500');
+                }
+
+
+                if (isValid) {
+                    console.log('Form submitted successfully');
+                    alert('회원가입 양식이 제출되었습니다!');
+                    signupForm.submit(); // Uncomment to allow actual form submission
+                } else {
+                    console.log('Form validation failed');
+                }
+            });
+        }
+
+        // Clear errors on input
+        [fullNameInput, emailInput, passwordInput, confirmPasswordInput].forEach(input => {
+            if (input) {
+                input.addEventListener('input', () => {
+                    if(input.id === 'full-name') clearError(input, 'fullNameError');
+                    if(input.id === 'email-address') clearError(input, 'emailError');
+                    if(input.id === 'password' && input.value.length >= 8) clearError(input, 'passwordError');
+                    if(input.id === 'confirm-password' && input.value === passwordInput.value) clearError(input, 'confirmPasswordError');
+                });
+            }
+        });
+        if(termsAgreeCheckbox) termsAgreeCheckbox.addEventListener('change', () => {
+            if(termsAgreeCheckbox.checked) { clearError(termsAgreeCheckbox, 'termsError'); termsAgreeCheckbox.classList.remove('ring-2', 'ring-red-500'); }
+        });
+        if(privacyAgreeCheckbox) privacyAgreeCheckbox.addEventListener('change', () => {
+            if(privacyAgreeCheckbox.checked) { clearError(privacyAgreeCheckbox, 'privacyError'); privacyAgreeCheckbox.classList.remove('ring-2', 'ring-red-500'); }
+        });
+
+
+    </script>
+</body>
+</html>

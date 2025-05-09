@@ -42,16 +42,24 @@ def search_view(request: HttpRequest) -> HttpResponse:
                         except Exception as e:
                             print(f"쿼리 결과의 연결 관계 가져오기 오류: {e}")
                 
+                # 기본 응답 데이터 구성
                 response_data = {
                     'answer': result['answer'],
-                    'messages': result['messages'],
+                    'messages': result['messages'],  # 주의: messages는 모든 메시지 기록 포함
                     'retrieved_docs': result['retrieved_docs'],
                     'related_info': result['related_info'],
                     'connections': connections,  # 추가로 가져온 연결 관계 혹은 빈 리스트
                     'query_type': result['query_type'], 
                     'graph_context': result.get('graph_context', {}),
-                    'citations': result.get('citations', []),
+                    'citations': result.get('citations', [])
                 }
+                
+                # 추가 응답이 있으면 포함 (Tavily 검색 결과)
+                if 'additional_answer' in result and result['additional_answer']:
+                    print(f"추가 응답이 생성되었습니다: {len(result['additional_answer'])} 문자")
+                    response_data['additional_answer'] = result['additional_answer']
+                    if 'tavily_results' in result:
+                        response_data['tavily_results'] = result['tavily_results']
                 
                 return JsonResponse(response_data)
             else:

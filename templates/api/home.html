@@ -105,10 +105,10 @@
                     <a href="{% url 'api:search_path' %}" class="text-gray-600 hover:text-sky-600 hover:bg-sky-50 px-4 py-2 rounded-md text-base font-medium transition-colors">
                         <i class="bi bi-chat-dots mr-1"></i>AI 검색
                     </a>
-                    <a href="{% url 'api:login' %}" class="text-gray-600 hover:text-sky-600 hover:bg-sky-50 px-4 py-2 rounded-md text-base font-medium transition-colors">
+                    <a href="{% url 'user:login' %}" class="text-gray-600 hover:text-sky-600 hover:bg-sky-50 px-4 py-2 rounded-md text-base font-medium transition-colors">
                         <i class="bi bi-box-arrow-in-right mr-1"></i>로그인
                     </a>
-                    <a href="{% url 'api:signup' %}" class="bg-sky-600 text-white hover:bg-sky-700 px-5 py-2.5 rounded-lg text-base font-medium transition-colors shadow-sm hover:shadow-md">
+                    <a href="{% url 'user:signup' %}" class="bg-sky-600 text-white hover:bg-sky-700 px-5 py-2.5 rounded-lg text-base font-medium transition-colors shadow-sm hover:shadow-md">
                         <i class="bi bi-person-plus-fill mr-1.5"></i>회원가입
                     </a>
                 </nav>
@@ -122,10 +122,10 @@
         </div>
         <!-- Mobile Menu -->
         <div id="mobileMenu" class="mobile-menu md:hidden bg-white shadow-lg absolute w-full">
-            <a href="index.html" class="block text-sky-600 px-4 py-3 text-base font-medium border-l-4 border-sky-600 bg-sky-50"><i class="bi bi-house-door-fill mr-2"></i>HOME</a>
-            <a href="chatbot.html" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-chat-dots mr-2"></i>AI 검색</a>
-            <a href="#login" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-box-arrow-in-right mr-2"></i>로그인</a>
-            <a href="#signup" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-person-plus-fill mr-2"></i>회원가입</a>
+            <a href="{% url 'api:homepage' %}" class="block text-sky-600 px-4 py-3 text-base font-medium border-l-4 border-sky-600 bg-sky-50"><i class="bi bi-house-door-fill mr-2"></i>HOME</a>
+            <a href="{% url 'api:search_path' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-chat-dots mr-2"></i>AI 검색</a>
+            <a href="{% url 'user:login' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-box-arrow-in-right mr-2"></i>로그인</a>
+            <a href="{% url 'user:signup' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-person-plus-fill mr-2"></i>회원가입</a>
         </div>
     </header>
 

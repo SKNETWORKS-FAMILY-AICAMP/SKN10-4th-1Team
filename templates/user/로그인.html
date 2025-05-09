@@ -109,10 +109,10 @@
                     <a href="{% url 'api:search_path' %}" class="text-gray-600 hover:text-sky-600 hover:bg-sky-50 px-4 py-2 rounded-md text-base font-medium transition-colors">
                         <i class="bi bi-chat-dots mr-1"></i>AI 검색
                     </a>
-                    <a href="{% url 'api:login' %}" class="text-sky-600 border-b-2 border-sky-600 px-4 py-2 text-base font-medium" aria-current="page">
+                    <a href="{% url 'user:login' %}" class="text-sky-600 border-b-2 border-sky-600 px-4 py-2 text-base font-medium" aria-current="page">
                         <i class="bi bi-box-arrow-in-right mr-1"></i>로그인
                     </a>
-                    <a href="{% url 'api:signup' %}" class="bg-sky-600 text-white hover:bg-sky-700 px-5 py-2.5 rounded-lg text-base font-medium transition-colors shadow-sm hover:shadow-md">
+                    <a href="{% url 'user:signup' %}" class="bg-sky-600 text-white hover:bg-sky-700 px-5 py-2.5 rounded-lg text-base font-medium transition-colors shadow-sm hover:shadow-md">
                         <i class="bi bi-person-plus-fill mr-1.5"></i>회원가입
                     </a>
                 </nav>
@@ -145,7 +145,7 @@
                 </h2>
                 <p class="mt-2 text-center text-sm text-slate-600">
                     계정이 없으신가요?
-                    <a href="{% url 'api:signup' %}" class="font-medium text-sky-600 hover:text-sky-500">
+                    <a href="{% url 'user:signup' %}" class="font-medium text-sky-600 hover:text-sky-500">
                         회원가입
                     </a>
                 </p>

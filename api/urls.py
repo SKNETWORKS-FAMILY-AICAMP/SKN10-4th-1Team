@@ -9,8 +9,8 @@ urlpatterns = [
     path('document_info/', views.document_info_view, name='document_info'),
     # 향후 AJAX 엔드포인트 등을 위한 경로 추가 가능
     # path('rag_query/', views.rag_query_view, name='rag_query'),
-    path('login/', views.login, name="login"),
-    path('signup/', views.signup, name="signup"),
+    # path('login/', views.login, name="login"),
+    # path('signup/', views.signup, name="signup"),
     # search/ 경로도 search_view에 매핑
     path('search/', views.search_view, name='search_path'),
     # search/document_info/ 경로 추가

@@ -21,4 +21,5 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('api.urls')), # 루트 경로도 api 앱으로 연결 (선택 사항)
+    path('user/', include('user.urls')), # '/user/' 경로로 user 앱 연결
 ]

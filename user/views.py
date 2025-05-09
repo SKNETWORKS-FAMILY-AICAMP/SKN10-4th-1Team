@@ -1,11 +1,18 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
-from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
 from user.models import UserAccount 
-from django.http import JsonResponse
 
-@csrf_exempt
+def logout_view(request):
+    if request.method == 'GET':
+        logout(request)
+        return redirect('/')  # 로그아웃 후 홈으로 리다이렉트
+
 def login_view(request):
+    if request.user.is_authenticated:
+        messages.info(request, '이미 로그인되어 있습니다.')
+        return redirect('/')  # 이미 로그인된 경우 홈으로 리다이렉트
+    
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
@@ -15,12 +22,16 @@ def login_view(request):
             login(request, user)
             return redirect('/')  # 로그인 성공 시 홈으로 리다이렉트
         else:
-            print("로그인 실패")
-            return render(request, 'user/로그인.html', {'error': 'Invalid credentials'})
+            messages.error(request, '로그인 실패: 이메일 또는 비밀번호가 잘못되었습니다.')
+            return redirect('user/login')
 
     return render(request, 'user/로그인.html')
 
 def signup_view(request):
+    if request.user.is_authenticated:
+        messages.info(request, '이미 로그인되어 있습니다.')
+        return redirect('/')  # 이미 로그인된 경우 홈으로 리다이렉트
+    
     if request.method == 'POST':
         full_name = request.POST.get('fullName')
         email = request.POST.get('email')
@@ -28,10 +39,12 @@ def signup_view(request):
         confirm_password = request.POST.get('confirmPassword')
 
         if password != confirm_password:
-            return JsonResponse({'error': 'Passwords do not match'}, status=400)
+            messages.error(request, '비밀번호가 일치하지 않습니다.')
+            return redirect('user/signup')
 
-        if UserAccount.objects.filter(email=email).exists():
-            return render(request, 'user/회원가입.html', {'error': 'Email already in use'})
+        if UserAccount.objects.filter(username=email).exists():
+            messages.error(request, '이메일이 이미 사용 중입니다.')
+            return redirect('user/signup')
 
         UserAccount.objects.create_user(
             username=email,  # Use email as username

@@ -37,6 +37,13 @@ class GeminiLLM:
 사실 확인이 불가능한 내용은 추측이라고 명시하고, 검색된 정보에서 직접 확인할 수 있는 내용만 포함해주세요.
 
 논문 간의 관계(공통 저자, 키워드 등)가 있다면 이를 강조하여 설명해주세요.
+
+# 마크다운 활용 지침
+- 정보를 구조화하여 표현할 때 마크다운 표(|---|---|)를 적극 활용하세요.
+- 데이터 비교, 약물 정보, 연구 결과 요약 등은 표 형식으로 정리하면 더 이해하기 쉽습니다.
+- 코드 블록(```)을 사용하여 수식이나 통계 정보를 깔끔하게 표현하세요.
+- 필요한 경우 마크다운 문법을 활용하여 헤딩(#, ##), 강조(***, **), 목록(- , 1.), 인용(>) 등을 사용하세요.
+- 복잡한 관계는 ASCII 아트나 마크다운 문법으로 간단한 다이어그램을 그릴 수 있습니다.
 """
     
     def generate_response(self, 
@@ -60,12 +67,12 @@ class GeminiLLM:
         Returns:
             생성된 응답
         """
-        print(f"[디버깅] GeminiLLM.generate_response 진입")
-        print(f"[디버깅] GeminiLLM에 전달된 graph_context: {graph_context}")
-        if graph_context and 'raw_results' in graph_context:
-            print(f"[디버깅] GeminiLLM에 전달된 raw_results: {graph_context['raw_results']}")
-        else:
-            print("[디버깅] GeminiLLM에 전달된 graph_context에 raw_results가 없습니다.")
+        # print(f"[디버깅] GeminiLLM.generate_response 진입")
+        # print(f"[디버깅] GeminiLLM에 전달된 graph_context: {graph_context}")
+        # if graph_context and 'raw_results' in graph_context:
+        #     print(f"[디버깅] GeminiLLM에 전달된 raw_results: {graph_context['raw_results']}")
+        # else:
+        #     print("[디버깅] GeminiLLM에 전달된 graph_context에 raw_results가 없습니다.")
         if not retrieved_docs and not graph_context: 
             return "검색된 정보나 그래프 컨텍스트가 없어 답변을 생성할 수 없습니다. 다른 질문을 시도해주세요."
         
@@ -77,7 +84,7 @@ class GeminiLLM:
             response = self.model.generate_content(prompt)
             return response.text
         except Exception as e:
-            print(f"응답 생성 오류: {e}")
+            # print(f"응답 생성 오류: {e}")
             return "응답 생성 중 오류가 발생했습니다. 다시 시도해주세요."
     
     def _construct_prompt(self, 
@@ -268,7 +275,7 @@ class GeminiLLM:
         
         # 사용자 쿼리 추가
         prompt += f"### 사용자 질문:\n{query}\n\n"
-        prompt += "위 정보를 바탕으로 사용자의 질문에 한국어로 상세히 답변해주세요. 답변에 그래프 연결 관계에서 발견된 흥미로운 패턴이나 관계가 있다면 이를 설명해주세요."
+        prompt += "위 정보를 바탕으로 사용자의 질문에 한국어로 상세히 답변해주세요. 답변에 그래프 연결 관계에서 발견된 흥미로운 패턴이나 관계가 있다면 이를 설명해주세요. 데이터를 표현할 때는 마크다운 표를 사용하여 구조화된 방식으로 정보를 제공하는 것이 좋습니다. 필요에 따라 코드 블록으로 수식이나 통계 정보를 표현할 수도 있습니다."
         
         return prompt
 

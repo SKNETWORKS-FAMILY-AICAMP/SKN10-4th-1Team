@@ -549,8 +549,8 @@ class HybridGraphFlow:
         Returns:
             업데이트된 상태
         """
-        print(f"[디버깅] _extract_graph_context 진입, 전체 state keys: {state.keys()}")
-        print(f"[디버깅] _extract_graph_context 진입, 전체 state['graph_search_output']: {state.get('graph_search_output')}")
+        # print(f"[디버깅] _extract_graph_context 진입, 전체 state keys: {state.keys()}")
+        # print(f"[디버깅] _extract_graph_context 진입, 전체 state['graph_search_output']: {state.get('graph_search_output')}")
         combined_results = state.get("combined_results", [])
         graph_search_output = state.get("graph_search_output", {})
         raw_cypher_results = graph_search_output.get("raw_results")
@@ -566,12 +566,13 @@ class HybridGraphFlow:
             # 또는 특정 키로 명확히 구분하여 저장 (예: graph_context['cypher_query_results'] = raw_cypher_results)
             # llm.py의 _construct_prompt가 graph_context['raw_results']를 직접 사용하므로, 여기에 맞춤
             graph_context['raw_results'] = raw_cypher_results 
-            print(f"[디버깅] _extract_graph_context: raw_results 추가됨: {raw_cypher_results}")
-        else:
-            print("[디버깅] _extract_graph_context: raw_cypher_results 없음.")
+            # print(f"[디버깅] _extract_graph_context: raw_results 추가됨: {raw_cypher_results}")
+        # else:
+        #     # print("[디버깅] _extract_graph_context: raw_cypher_results 없음.")
 
         if not graph_context and not combined_results and not raw_cypher_results:
-            print("[디버깅] _extract_graph_context: 사용할 컨텍스트 정보가 없습니다.")
+            # print("[디버깅] _extract_graph_context: 사용할 컨텍스트 정보가 없습니다.")
+
             return {**state, "graph_context": {}}
         
         return {
@@ -589,12 +590,12 @@ class HybridGraphFlow:
         Returns:
             업데이트된 상태
         """
-        print(f"[디버깅] _generate_response 진입, 전체 state keys: {state.keys()}")
+        # print(f"[디버깅] _generate_response 진입, 전체 state keys: {state.keys()}")
         query = state.get("query", "")
         combined_results = state.get("combined_results", [])
         related_nodes = state.get("related_nodes", {})
         graph_context = state.get("graph_context", {})
-        print(f"[디버깅] _generate_response에서 LLM에 전달되는 graph_context: {graph_context}")
+        # print(f"[디버깅] _generate_response에서 LLM에 전달되는 graph_context: {graph_context}")
         messages = state.get("messages", [])
         
         # 챗 히스토리를 사용하지 않도록 변경
@@ -606,7 +607,7 @@ class HybridGraphFlow:
         
         # combined_results가 비어 있지만 graph_search_results가 있으면 이를 사용
         if not combined_results and graph_search_results:
-            print(f"[디버깅] combined_results가 비어 있지만 graph_search_results 사용: {graph_search_results}")
+            # print(f"[디버깅] combined_results가 비어 있지만 graph_search_results 사용: {graph_search_results}")
             combined_results = graph_search_results
         
         # 여전히 결과가 없으면 오류 메시지 반환
@@ -614,7 +615,7 @@ class HybridGraphFlow:
             # 그래프 검색에서 raw_results만 있는 경우 처리
             raw_results = graph_search_output.get("raw_results", [])
             if raw_results:
-                print(f"[디버깅] combined_results가 없지만 raw_results 사용: {raw_results}")
+                # print(f"[디버깅] combined_results가 없지만 raw_results 사용: {raw_results}")
                 # raw_results를 기반으로 가째다 임시 combined_results 생성
                 combined_results = [{
                     "pmid": "",
@@ -631,7 +632,7 @@ class HybridGraphFlow:
                 }
         
         # LLM 응답 생성 (챗 히스토리 사용 안함)
-        print("[디버깅] self.llm.generate_response() 호출 직전")
+        # print("[디버깅] self.llm.generate_response() 호출 직전")
         try:
             final_answer = self.llm.generate_response(
                 query=query,
@@ -640,9 +641,9 @@ class HybridGraphFlow:
                 graph_context=graph_context,
                 chat_history=[]  # 빈 배열로 전달하여 히스토리 사용 안함
             )
-            print(f"[디버깅] self.llm.generate_response() 호출 성공, 결과 길이: {len(final_answer)}")
+            # print(f"[디버깅] self.llm.generate_response() 호출 성공, 결과 길이: {len(final_answer)}")
         except Exception as e:
-            print(f"[디버깅] self.llm.generate_response() 호출 중 오류 발생: {e}")
+            # print(f"[디버깅] self.llm.generate_response() 호출 중 오류 발생: {e}")
             final_answer = f"검색 결과를 처리하는 중 오류가 발생했습니다: {str(e)}"
         
         
@@ -746,6 +747,15 @@ class HybridGraphFlow:
         final_answer = state.get("final_answer", "")
         combined_results = state.get("combined_results", [])
         iterations = state.get("iterations", 0)
+        query_type = state.get("query_type", "")
+        
+        # 그래프 검색인 경우 무조건 "good"으로 평가
+        if query_type == "graph":
+            return {
+                **state,
+                "response_quality": "good",
+                "iterations": iterations
+            }
         
         # 반복 횟수 증가 (무한 루프 방지)
         iterations += 1

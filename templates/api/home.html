@@ -56,13 +56,51 @@
         }
         
         .btn-primary {
-            @apply bg-sky-600 text-white hover:bg-sky-700 focus:ring-sky-500;
+            background-color: #0284c7; /* bg-sky-600 */
+            color: white;
         }
+        .btn-primary:hover {
+            background-color: #0369a1; /* bg-sky-700 */
+        }
+        .btn-primary:focus {
+            --tw-ring-color: #0ea5e9; /* sky-500 */
+        }
+        
         .btn-secondary {
-            @apply bg-slate-200 text-slate-700 hover:bg-slate-300 focus:ring-slate-400;
+            background-color: #e2e8f0; /* bg-slate-200 */
+            color: #334155; /* text-slate-700 */
         }
+        .btn-secondary:hover {
+            background-color: #cbd5e1; /* bg-slate-300 */
+        }
+        .btn-secondary:focus {
+            --tw-ring-color: #94a3b8; /* slate-400 */
+        }
+        
         .btn {
-            @apply px-6 py-3 rounded-lg font-semibold shadow-md transition-all duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-offset-2;
+            padding-left: 1.5rem; /* px-6 */
+            padding-right: 1.5rem;
+            padding-top: 0.75rem; /* py-3 */
+            padding-bottom: 0.75rem;
+            border-radius: 0.5rem; /* rounded-lg */
+            font-weight: 600; /* font-semibold */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
+            transition-property: all;
+            transition-duration: 300ms;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); /* ease-in-out */
+            transform: translateZ(0); /* transform */
+            outline: 2px solid transparent;
+            outline-offset: 2px;
+        }
+        .btn:hover {
+            transform: scale(1.05);
+        }
+        .btn:focus {
+            outline: none;
+            --tw-ring-offset-width: 2px;
+            --tw-ring-offset-color: #fff;
+            --tw-ring-width: 4px;
+            box-shadow: 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color), 0 0 0 calc(var(--tw-ring-width) + var(--tw-ring-offset-width)) var(--tw-ring-color);
         }
 
         /* Mobile menu basic toggle */
@@ -129,9 +167,14 @@
         <!-- Mobile Menu -->
         <div id="mobileMenu" class="mobile-menu md:hidden bg-white shadow-lg absolute w-full">
             <a href="{% url 'api:homepage' %}" class="block text-sky-600 px-4 py-3 text-base font-medium border-l-4 border-sky-600 bg-sky-50"><i class="bi bi-house-door-fill mr-2"></i>HOME</a>
+            {% if request.user.is_authenticated %}
             <a href="{% url 'api:search_path' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-chat-dots mr-2"></i>AI 검색</a>
+            <a href="{% url 'user:logout' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-box-arrow-right mr-2"></i>로그아웃</a>
+            {% else %}
+            <a href="{% url 'user:login' %}?next={% url 'api:search_path' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-chat-dots mr-2"></i>AI 검색</a>
             <a href="{% url 'user:login' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-box-arrow-in-right mr-2"></i>로그인</a>
             <a href="{% url 'user:signup' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-person-plus-fill mr-2"></i>회원가입</a>
+            {% endif %}
         </div>
     </header>
 
@@ -325,8 +368,8 @@
             threshold: 0.1 // 10% of item height in view
         };
 
-        const observer = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
+        const observer = new IntersectionObserver(function(entries, observer) {
+            entries.forEach(function(entry) {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('is-visible');
                     // Optional: unobserve after animation to save resources
@@ -335,12 +378,12 @@
             });
         }, observerOptions);
 
-        sections.forEach(section => {
+        sections.forEach(function(section) {
             observer.observe(section);
         });
 
         // Smooth scroll for internal links (redundant if body scroll-behavior: smooth is set, but good fallback)
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
             anchor.addEventListener('click', function (e) {
                 const hrefAttribute = this.getAttribute('href');
                 // Ensure it's not just a placeholder href="#"
@@ -371,8 +414,8 @@
             // Remove 로그인 and 회원가입 buttons
             const loginButton = nav.querySelector('a[href="{% url 'user:login' %}"]');
             const signupButton = nav.querySelector('a[href="{% url 'user:signup' %}"]');
-            if (loginButton) loginButton.remove();
-            if (signupButton) signupButton.remove();
+            if (loginButton) { loginButton.remove(); }
+            if (signupButton) { signupButton.remove(); }
 
             // Add 로그아웃 button
             const logoutButton = document.createElement('a');

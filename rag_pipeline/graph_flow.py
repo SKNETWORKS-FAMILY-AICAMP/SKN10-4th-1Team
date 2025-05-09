@@ -1,14 +1,21 @@
-from typing import Dict, List, Any, Tuple, Optional, TypedDict, Annotated, Union, Literal
 import os
+import time
+from typing import Dict, List, Any, Optional, Callable, Union, TypeVar, TypedDict, Literal
+import random
+import json
+
 from langchain_core.messages import HumanMessage, AIMessage
 from langchain_core.runnables import RunnablePassthrough
 from langgraph.graph import StateGraph, END
 from dotenv import load_dotenv
 
+
+
 # 로컬 모듈 임포트
 from rag_pipeline.vector_store import Neo4jVectorSearch
 from rag_pipeline.llm import GeminiLLM
 from rag_pipeline.tavily_search import TavilySearch
+from rag_pipeline.neo4j_graph_chain import Neo4jGraphChain
 
 # 환경 변수 로드
 load_dotenv()
@@ -25,6 +32,7 @@ class QueryState(TypedDict):
     graph_context: Dict[str, Any]  # 그래프 컨텍스트
     final_answer: str  # 최종 답변
     citations: List[Dict]  # 인용 정보
+    graph_search_output: Dict[str, Any]  # 그래프 검색 출력 (샘플링된 쿼리 및 raw_results 포함)
     
     # 응답 검증 및 추가 검색 관련 필드
     response_quality: Literal["good", "insufficient", "unverified"]  # 응답 품질 평가
@@ -44,6 +52,14 @@ class HybridGraphFlow:
         """HybridGraphFlow 초기화"""
         self.vector_search = Neo4jVectorSearch()
         self.llm = GeminiLLM()
+        try:
+            self.graph_chain = Neo4jGraphChain() # Initialize Neo4jGraphChain
+            if not self.graph_chain.cypher_chain: # Check if Neo4jGraphChain itself initialized correctly
+                print("HybridGraphFlow __init__ Warning: self.graph_chain.cypher_chain is None. Neo4jGraphChain might not have initialized its QA chain properly.")
+                # Depending on strictness, could raise an error or allow proceeding with graph_chain potentially non-functional
+        except Exception as e:
+            print(f"HybridGraphFlow __init__ Error: Failed to initialize Neo4jGraphChain: {e}")
+            self.graph_chain = None # Set to None to indicate failure
         self.tavily_search = TavilySearch()
         
         # LangGraph 워크플로우 구성
@@ -131,18 +147,18 @@ class HybridGraphFlow:
         llm = GeminiLLM()
         
         prompt = f"""
-당신은 연구 논문 검색 시스템의, 쿼리 의도 분석을 담당하는 전문가입니다.
-사용자의 쿼리를 분석하여 적절한 검색 전략을 결정해야 합니다.
+        당신은 연구 논문 검색 시스템의, 쿼리 의도 분석을 담당하는 전문가입니다.
+        사용자의 쿼리를 분석하여 적절한 검색 전략을 결정해야 합니다.
 
-다음 세 가지 검색 전략 중 하나를 선택하세요:
-1. "vector": 의미적 유사성에 기반한 검색이 필요할 때 (예: "당뇨병 치료에 관한 최신 연구", "COVID-19 백신의 효과")
-2. "graph": 논문/저자/키워드 간의 관계나 네트워크를 탐색할 때 (예: "Smith 교수와 공동 연구한 저자들", "면역학과 신경학 분야를 연결하는 연구")
-3. "hybrid": 복합적인 정보 요구가 있을 때 (기본값, 벡터 검색과 그래프 탐색을 모두 활용)
+        다음 세 가지 검색 전략 중 하나를 선택하세요:
+        1. "vector": 의미적 유사성에 기반한 검색이 필요할 때 (예: "당뇨병 치료에 관한 최신 연구", "COVID-19 백신의 효과")
+        2. "graph": 논문/저자/키워드 간의 관계나 네트워크를 탐색할 때 (예: "Smith 교수와 공동 연구한 저자들", "면역학과 신경학 분야를 연결하는 연구")
+        3. "hybrid": 복합적인 정보 요구가 있을 때 (기본값, 벡터 검색과 그래프 탐색을 모두 활용)
 
-사용자 쿼리: {query}
+        사용자 쿼리: {query}
 
-위 쿼리에 가장 적합한 검색 전략은 무엇인가요? "vector", "graph", "hybrid" 중 하나만 출력하세요.
-"""
+        위 쿼리에 가장 적합한 검색 전략은 무엇인가요? "vector", "graph", "hybrid" 중 하나만 출력하세요.
+        """
         
         try:
             response = llm.model.generate_content(prompt)
@@ -196,7 +212,7 @@ class HybridGraphFlow:
     
     def _graph_search(self, state: QueryState) -> QueryState:
         """
-        그래프 검색 수행
+        그래프 검색 수행 - LangChain GraphCypherQAChain을 활용한 그래프 검색
         
         Args:
             state: 현재 상태
@@ -206,35 +222,209 @@ class HybridGraphFlow:
         """
         query = state["query"]
         
-        # LLM을 사용하여 Cypher 쿼리 생성 (실제로는 더 정교한 구현 필요)
-        # 여기서는 간단한 예시 Cypher 쿼리 사용
-        cypher_query = """
+        print("\n" + "=" * 80)
+        print(f"[디버깅] 사용자 쿼리: '{query}'")
+        print("[디버깅] GraphCypherQAChain을 사용하여 그래프 검색 시작...")
+        
+        # LangChain GraphCypherQAChain 사용
+        chain_result = self.graph_chain.search(query)
+        
+        # 생성된 Cypher 쿼리 출력
+        cypher_query = chain_result.get("cypher_query", "")
+        print(f"[디버깅] 생성된 Cypher 쿼리:\n{cypher_query}")
+
+        # 검색 결과를 state에 저장
+        state['graph_search_output'] = chain_result
+        print(f"[디버깅] 그래프 검색 결과 (raw_results):\n{chain_result.get('raw_results')}")
+        print(f"[디버깅] state에 저장된 graph_search_output: {state['graph_search_output']}")
+        print("=" * 80)
+
+        return state
+    
+    def _generate_cypher_query(self, user_query: str) -> str:
+        """
+        사용자 쿼리를 분석하여 적절한 Neo4j Cypher 쿼리 생성
+        
+        Args:
+            user_query: 사용자 입력 쿼리
+            
+        Returns:
+            실행할 Cypher 쿼리 문자열
+        """
+        if not self.graph_chain:
+            print("Error in _generate_cypher_query: self.graph_chain was not successfully initialized.")
+            return "Error: Graph chain service not available."
+
+        # Further check if the internal QA chain of Neo4jGraphChain is ready
+        if not self.graph_chain.cypher_chain:
+             print("Error in _generate_cypher_query: Neo4jGraphChain's core component (cypher_chain) is not available.")
+             return "Error: Graph query generation component not ready."
+
+        try:
+            # The search method of Neo4jGraphChain calls the QA chain and extracts the Cypher query.
+            graph_search_output = self.graph_chain.search(user_query)
+            
+            generated_query = graph_search_output.get("cypher_query")
+
+            # Check for various forms of failure indications in the generated query string
+            if not generated_query or \
+               "쿼리를 생성할 수 없습니다." in str(generated_query) or \
+               (isinstance(generated_query, str) and "Error:" in generated_query):
+                error_detail = str(generated_query) if generated_query else "No query returned"
+                print(f"Warning: Cypher query generation failed or returned an error for user_query '{user_query}'. Detail: '{error_detail}'")
+                return "Error: Cypher query generation resulted in an error or no query."
+            
+            return str(generated_query) # Ensure it's a string
+        except Exception as e:
+            print(f"Exception in _generate_cypher_query for query '{user_query}': {e}")
+            # Return a generic error message to the caller, details are logged.
+            return "Error: An exception occurred while generating the Cypher query."
+
+    def _translate_query_if_needed(self, user_query: str) -> str:
+        """
+        한국어 쿼리를 영어로 번역하는 함수 - LLM 사용
+        
+        Args:
+            user_query: 사용자 입력 쿼리
+            
+        Returns:
+            영어로 번역된 쿼리
+        """
+        # 사용자 쿼리가 영어인지 한국어인지 간단히 확인
+        # 영어 확떠이 높으면 그대로 유지
+        english_chars = set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ,. ')
+        ratio = sum(1 for c in user_query if c in english_chars) / len(user_query) if user_query else 0
+        
+        if ratio > 0.7:  # 영어 컨텐츠가 70% 이상이면 번역 없이 반환
+            return user_query
+        
+        # LLM을 사용하여 번역
+        try:
+            llm = self.llm  # 기존 LLM 클래스 사용
+            prompt = f"""
+            Translate the following Korean medical query into English as accurately as possible,
+            focusing on medical terminology and maintaining the original meaning.
+            Only return the translated English text, nothing else.
+            
+            Korean query: {user_query}
+            """
+            
+            response = llm.model.generate_content(prompt)
+            translated = response.text.strip()
+            
+            print(f"[디버깅] 한국어 쿼리 번역: '{user_query}' -> '{translated}'")
+            return translated
+        except Exception as e:
+            print(f"번역 오류: {e}, 원본 쿼리 사용")
+            return user_query
+    
+    def _get_fallback_cypher_query(self, user_query: str) -> str:
+        """
+        LLM 쿼리 생성이 실패했을 때 사용할 대체 Cypher 쿼리
+        
+        Args:
+            user_query: 사용자 입력 쿼리
+            
+        Returns:
+            대체 Cypher 쿼리
+        """
+        # 번역 시도
+        translated_query = self._translate_query_if_needed(user_query)
+        
+        # 쿼리에서 주요 키워드 추출 (간단한 구현)
+        keywords = translated_query.lower().split()
+        keywords = [k for k in keywords if len(k) > 3 and k not in 
+                   ['what', 'which', 'when', 'where', 'how', 'why', 'who', 'and', 'the', 'for', 'with']]
+        
+        # 키워드가 없으면 일반 쿼리 반환
+        if not keywords:
+            return """
+            MATCH (a:Article)-[:HAS_KEYWORD]->(k:Keyword)
+            WITH a, collect(k.term) as keywords
+            RETURN a.pmid as pmid, a.title as title, a.abstract as abstract, keywords
+            ORDER BY size(keywords) DESC, a.pmid DESC
+            LIMIT 10
+            """
+        
+        # 첫 번째 키워드로 검색 쿼리 구성
+        keyword = keywords[0]
+        return f"""
         MATCH (a:Article)-[:HAS_KEYWORD]->(k:Keyword)
-        WHERE k.term CONTAINS '비만'
-        RETURN a.pmid as pmid, a.title as title, a.abstract as abstract, 
-               collect(k.term) as keywords
-        LIMIT 10
+        WHERE toLower(k.term) CONTAINS toLower('{keyword}')
+        WITH a, collect(k.term) as keywords
+        MATCH (a)-[:AUTHORED_BY]->(auth:Author)
+        WITH a, keywords, collect(auth.name) as authors
+        RETURN a.pmid as pmid, a.title as title, a.abstract as abstract, keywords, authors
+        ORDER BY size(keywords) DESC
+        LIMIT 15
         """
         
         try:
-            results, _ = self.vector_search.db.cypher_query(cypher_query)
+            # GraphCypherQAChain에서 반환한 결과 처리
+            graph_results = chain_result.get("results", [])
             
-            # 결과 포맷팅
-            graph_results = []
-            for row in results:
-                pmid, title, abstract, keywords = row
-                graph_results.append({
-                    "pmid": pmid,
-                    "title": title,
-                    "abstract": abstract,
-                    "keywords": keywords,
-                    "search_type": "graph"  # 이 결과가 그래프 검색에서 나온 것임을 표시
-                })
+            # 결과가 없으면 대체 질의 시도
+            if not graph_results and cypher_query:
+                print(f"[디버깅] GraphCypherQAChain 결과 없음, Cypher 쿼리 직접 실행...")
+                start_time = time.time()
+                results, _ = self.vector_search.db.cypher_query(cypher_query)
+                query_time = time.time() - start_time
+                print(f"[디버깅] 쿼리 실행 완료: {query_time:.2f}초 소요, {len(results)} 개의 결과 발견")
+                
+                # 결과 포맷팅 - 다양한 반환 구조 처리
+                graph_results = []
+                
+                for row in results:
+                    # 결과 구조에 따라 처리 방식 다르게 적용
+                    if len(row) >= 4:  # 기본 형식 (pmid, title, abstract, keywords)
+                        pmid, title, abstract, keywords = row[:4]
+                        result_dict = {
+                            "pmid": pmid,
+                            "title": title,
+                            "abstract": abstract,
+                            "keywords": keywords,
+                            "search_type": "graph"
+                        }
+                        # 추가 데이터 있으면 처리 (저자 등)
+                        if len(row) > 4:
+                            result_dict["authors"] = row[4] if isinstance(row[4], list) else [row[4]]
+                        if len(row) > 5:
+                            result_dict["additional_data"] = row[5:]
+                    else:
+                        # 결과 구조가 예상과 다른 경우
+                        print(f"예상치 못한 쿼리 결과 구조: {row}")
+                        # 최소한의 정보만 포함
+                        result_dict = {
+                            "pmid": row[0] if len(row) > 0 else "unknown",
+                            "title": row[1] if len(row) > 1 else "제목 없음",
+                            "abstract": row[2] if len(row) > 2 else "초록 없음",
+                            "keywords": row[3] if len(row) > 3 else [],
+                            "search_type": "graph"  
+                        }
+                    
+                    graph_results.append(result_dict)
+            
+            # 결과 메타데이터 추가 및 로깅
+            print(f"[디버깅] 그래프 검색 결과: {len(graph_results)}건 발견")
+            print("\n" + "=" * 40 + " 검색 결과 요약 " + "=" * 40)
+            
+            if graph_results:
+                # 첫 번째 결과 제목 출력 (디버깅용)
+                for i, result in enumerate(graph_results[:3]):  # 처음 3개 결과만 표시
+                    title = result.get("title", "제목 없음")
+                    pmid = result.get("pmid", "PMID 없음")
+                    keywords = ", ".join(result.get("keywords", [])[:5])
+                    print(f"\n결과 #{i+1} - PMID: {pmid}")
+                    print(f"\u2022 제목: {title[:100]}{'...' if len(title) > 100 else ''}")
+                    print(f"\u2022 키워드: {keywords}")
+                
+                print("\n" + "=" * 80)
             
             return {
                 **state,
                 "graph_results": graph_results,
-                "combined_results": graph_results  # 그래프 검색 모드에서는 그래프 결과가 최종 결과
+                "combined_results": graph_results,  # 그래프 검색 모드에서는 그래프 결과가 최종 결과
+                "graph_query_used": cypher_query  # 사용된 쿼리 기록 (디버깅용)
             }
         
         except Exception as e:
@@ -242,7 +432,9 @@ class HybridGraphFlow:
             return {
                 **state,
                 "graph_results": [],
-                "combined_results": []
+                "combined_results": [],
+                "graph_query_used": cypher_query,  # 오류가 발생한 쿼리도 기록
+                "graph_error": str(e)  # 오류 메시지 저장
             }
     
     def _hybrid_search(self, state: QueryState) -> QueryState:
@@ -328,6 +520,7 @@ class HybridGraphFlow:
         Returns:
             업데이트된 상태
         """
+        print(f"[디버깅] _gather_related_nodes 진입, state['graph_search_output']: {state.get('graph_search_output')}")
         combined_results = state.get("combined_results", [])
         
         if not combined_results:
@@ -356,13 +549,30 @@ class HybridGraphFlow:
         Returns:
             업데이트된 상태
         """
+        print(f"[디버깅] _extract_graph_context 진입, 전체 state keys: {state.keys()}")
+        print(f"[디버깅] _extract_graph_context 진입, 전체 state['graph_search_output']: {state.get('graph_search_output')}")
         combined_results = state.get("combined_results", [])
+        graph_search_output = state.get("graph_search_output", {})
+        raw_cypher_results = graph_search_output.get("raw_results")
+
+        # 기본 그래프 컨텍스트 추출 (기존 로직)
+        graph_context = {}
+        if combined_results:
+            graph_context = self.vector_search.get_graph_context_for_response(combined_results)
         
-        if not combined_results:
+        # Cypher 쿼리 결과(raw_results)가 있으면 graph_context에 추가
+        if raw_cypher_results:
+            # graph_context가 이미 다른 정보로 채워져 있을 수 있으므로 업데이트 방식 사용
+            # 또는 특정 키로 명확히 구분하여 저장 (예: graph_context['cypher_query_results'] = raw_cypher_results)
+            # llm.py의 _construct_prompt가 graph_context['raw_results']를 직접 사용하므로, 여기에 맞춤
+            graph_context['raw_results'] = raw_cypher_results 
+            print(f"[디버깅] _extract_graph_context: raw_results 추가됨: {raw_cypher_results}")
+        else:
+            print("[디버깅] _extract_graph_context: raw_cypher_results 없음.")
+
+        if not graph_context and not combined_results and not raw_cypher_results:
+            print("[디버깅] _extract_graph_context: 사용할 컨텍스트 정보가 없습니다.")
             return {**state, "graph_context": {}}
-        
-        # 그래프 컨텍스트 정보 추출
-        graph_context = self.vector_search.get_graph_context_for_response(combined_results)
         
         return {
             **state,
@@ -379,31 +589,62 @@ class HybridGraphFlow:
         Returns:
             업데이트된 상태
         """
+        print(f"[디버깅] _generate_response 진입, 전체 state keys: {state.keys()}")
         query = state.get("query", "")
         combined_results = state.get("combined_results", [])
         related_nodes = state.get("related_nodes", {})
         graph_context = state.get("graph_context", {})
+        print(f"[디버깅] _generate_response에서 LLM에 전달되는 graph_context: {graph_context}")
         messages = state.get("messages", [])
         
         # 챗 히스토리를 사용하지 않도록 변경
         # chat_history = messages[:-1] if messages else []
         
+        # 그래프 검색 결과가 있는지 확인
+        graph_search_output = state.get("graph_search_output", {})
+        graph_search_results = graph_search_output.get("results", [])
+        
+        # combined_results가 비어 있지만 graph_search_results가 있으면 이를 사용
+        if not combined_results and graph_search_results:
+            print(f"[디버깅] combined_results가 비어 있지만 graph_search_results 사용: {graph_search_results}")
+            combined_results = graph_search_results
+        
+        # 여전히 결과가 없으면 오류 메시지 반환
         if not combined_results:
-            final_answer = "검색 결과가 없습니다. 다른 질문을 시도해 주세요."
-            return {
-                **state,
-                "final_answer": final_answer,
-                "response_quality": "insufficient"  # 결과가 없으면 불충분한 응답으로 표시
-            }
+            # 그래프 검색에서 raw_results만 있는 경우 처리
+            raw_results = graph_search_output.get("raw_results", [])
+            if raw_results:
+                print(f"[디버깅] combined_results가 없지만 raw_results 사용: {raw_results}")
+                # raw_results를 기반으로 가째다 임시 combined_results 생성
+                combined_results = [{
+                    "pmid": "",
+                    "title": "그래프 검색 결과",
+                    "abstract": str(raw_results),
+                    "search_type": "graph_search"
+                }]
+            else:
+                final_answer = "검색 결과가 없습니다. 다른 질문을 시도해 주세요."
+                return {
+                    **state,
+                    "final_answer": final_answer,
+                    "response_quality": "insufficient"  # 결과가 없으면 불충분한 응답으로 표시
+                }
         
         # LLM 응답 생성 (챗 히스토리 사용 안함)
-        final_answer = self.llm.generate_response(
-            query=query,
-            retrieved_docs=combined_results,
-            related_info=related_nodes,
-            graph_context=graph_context,
-            chat_history=[]  # 빈 배열로 전달하여 히스토리 사용 안함
-        )
+        print("[디버깅] self.llm.generate_response() 호출 직전")
+        try:
+            final_answer = self.llm.generate_response(
+                query=query,
+                retrieved_docs=combined_results,
+                related_info=related_nodes,
+                graph_context=graph_context,
+                chat_history=[]  # 빈 배열로 전달하여 히스토리 사용 안함
+            )
+            print(f"[디버깅] self.llm.generate_response() 호출 성공, 결과 길이: {len(final_answer)}")
+        except Exception as e:
+            print(f"[디버깅] self.llm.generate_response() 호출 중 오류 발생: {e}")
+            final_answer = f"검색 결과를 처리하는 중 오류가 발생했습니다: {str(e)}"
+        
         
         # 인용 정보 추출
         citations = [

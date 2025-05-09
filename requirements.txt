@@ -11,7 +11,7 @@ python-dotenv
 # graphviz # 그래프 시각화 시
 # pygraphviz # 그래프 시각화 시
 google-genai
-
+langchain_community
 # 배포에 필요한 패키지
 # gunicorn==21.2.0  # WSGI HTTP 서버
 # whitenoise==6.5.0  # 정적 파일 서빙 도구

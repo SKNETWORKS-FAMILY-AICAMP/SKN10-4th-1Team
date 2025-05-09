@@ -173,8 +173,12 @@
         <div id="mobileMenu" class="md:hidden hidden bg-white shadow-lg absolute w-full">
             <a href="{% url 'api:homepage' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-house-door-fill mr-2"></i>HOME</a>
             <a href="{% url 'api:search_path' %}" class="block text-sky-600 px-4 py-3 text-base font-medium border-l-4 border-sky-600 bg-sky-50"><i class="bi bi-chat-dots mr-2"></i>AI 검색</a>
+            {% if request.user.is_authenticated %}
+            <a href="{% url 'user:logout' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-box-arrow-right mr-2"></i>로그아웃</a>
+            {% else %}
             <a href="{% url 'user:login' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-box-arrow-in-right mr-2"></i>로그인</a>
             <a href="{% url 'user:signup' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-person-plus mr-2"></i>회원가입</a>
+            {% endif %}
         </div>
     </header>
 
@@ -459,7 +463,7 @@
 
                     docCard.innerHTML = `
                         <div class="flex justify-between items-start">
-                            <strong class="text-sm font-semibold text-sky-700 mb-1 block pr-2">${doc.title || '제목 없음'}</strong>
+                            <a href="https://pubmed.ncbi.nlm.nih.gov/${doc.pmid}/" target="_blank" class="text-sm font-semibold text-sky-700 mb-1 block pr-2 hover:underline">${doc.title || '제목 없음'}</a>
                             <span class="search-type-icon text-lg">${searchTypeIcon}</span>
                         </div>
                         <p class="text-xs text-slate-500 mb-1">PMID: ${doc.pmid}</p>
@@ -607,7 +611,7 @@
                     
                     html += `
                         <div class="relation-item p-2.5 bg-slate-50 rounded-md border border-slate-200">
-                            <strong class="text-sky-700 text-xs block mb-0.5">${conn.title || '제목 없음'}</strong>
+                            <a href="https://pubmed.ncbi.nlm.nih.gov/${conn.pmid}/" target="_blank" class="text-sky-700 text-xs font-medium block mb-0.5 hover:underline">${conn.title || '제목 없음'}</a>
                             <p class="text-xs text-slate-500 mb-1">PMID: ${conn.pmid}</p>
                             <p class="text-xs text-slate-600">${relationText}</p>
                         </div>
@@ -644,23 +648,8 @@
                 });
             }
 
-            const nav = document.querySelector('nav.hidden.md\\:flex');
-            const isLoggedIn = '{{ request.user.is_authenticated|yesno:"true,false" }}' === 'true'; // Ensure proper string comparison
-
-            if (isLoggedIn) {
-                // Remove 로그인 and 회원가입 buttons
-                const loginButton = nav.querySelector('a[href="{% url 'user:login' %}"]');
-                const signupButton = nav.querySelector('a[href="{% url 'user:signup' %}"]');
-                if (loginButton) loginButton.remove();
-                if (signupButton) signupButton.remove();
-
-                // Add 로그아웃 button
-                const logoutButton = document.createElement('a');
-                logoutButton.href = '{% url 'user:logout' %}';
-                logoutButton.className = 'text-gray-600 hover:text-sky-600 px-3 py-2 rounded-md text-sm font-medium transition-colors';
-                logoutButton.innerHTML = '<i class="bi bi-box-arrow-right mr-1"></i>로그아웃';
-                nav.appendChild(logoutButton);
-            }
+            // JavaScript for handling desktop nav is now redundant as we're using Django templates for authentication
+            // This is kept here for legacy purposes but can be removed in the future
         });
     </script>
 </body>

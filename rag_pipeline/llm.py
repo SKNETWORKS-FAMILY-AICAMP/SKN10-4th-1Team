@@ -17,7 +17,7 @@ genai.configure(api_key=GEMINI_API_KEY)
 class GeminiLLM:
     """Gemini 2.0 Flash LLM 클라이언트"""
     
-    def __init__(self, model_name="gemini-1.5-flash"):
+    def __init__(self, model_name="gemini-2.0-flash"):
         """
         Gemini LLM 초기화
         
@@ -47,7 +47,7 @@ class GeminiLLM:
                          chat_history: Optional[List[Dict[str, str]]] = None,
                          graph_context: Optional[Dict[str, Any]] = None) -> str:
         """
-        사용자 쿼리와 검색된 문서를 기반으로 응답 생성
+        LLM을 사용하여 응답 생성
         
         Args:
             query: 사용자 쿼리
@@ -58,14 +58,20 @@ class GeminiLLM:
             graph_context: 그래프 연결 컨텍스트 정보
             
         Returns:
-            생성된 응답 텍스트
+            생성된 응답
         """
-        if not retrieved_docs:
-            return "검색된 정보가 없어 답변을 생성할 수 없습니다. 다른 질문을 시도해주세요."
+        print(f"[디버깅] GeminiLLM.generate_response 진입")
+        print(f"[디버깅] GeminiLLM에 전달된 graph_context: {graph_context}")
+        if graph_context and 'raw_results' in graph_context:
+            print(f"[디버깅] GeminiLLM에 전달된 raw_results: {graph_context['raw_results']}")
+        else:
+            print("[디버깅] GeminiLLM에 전달된 graph_context에 raw_results가 없습니다.")
+        if not retrieved_docs and not graph_context: 
+            return "검색된 정보나 그래프 컨텍스트가 없어 답변을 생성할 수 없습니다. 다른 질문을 시도해주세요."
         
         # 프롬프트 구성
         prompt = self._construct_prompt(query, retrieved_docs, related_info, connections, chat_history, graph_context)
-        
+
         try:
             # 응답 생성
             response = self.model.generate_content(prompt)
@@ -175,7 +181,28 @@ class GeminiLLM:
         # 그래프 컨텍스트 정보 추가
         if graph_context:
             prompt += "### 그래프 컨텍스트 정보:\n"
-            
+
+            # 그래프 직접 조회 결과 (예: Cypher 쿼리 결과)
+            if 'raw_results' in graph_context and graph_context['raw_results']:
+                prompt += "그래프 직접 조회 결과:\n"
+                results_data = graph_context['raw_results']
+                if isinstance(results_data, list):
+                    for item_data in results_data:
+                        if isinstance(item_data, dict):
+                            for key, value in item_data.items():
+                                prompt += f"- {key}: {value}\n"
+                        else:
+                            # 리스트의 항목이 딕셔너리가 아닌 경우 직접 문자열로 변환하여 추가
+                            prompt += f"- {str(item_data)}\n"
+                elif isinstance(results_data, dict):
+                    # 단일 딕셔너리인 경우도 처리
+                    for key, value in results_data.items():
+                        prompt += f"- {key}: {value}\n"
+                else:
+                    # 기타 데이터 타입일 경우 문자열로 변환하여 추가
+                    prompt += f"- {str(results_data)}\n"
+                prompt += "\n"  # 섹션 구분을 위한 줄바꿈
+
             # 문서 간 연결 관계
             if graph_context.get('document_connections'):
                 prompt += "문서 간 연결 관계:\n"

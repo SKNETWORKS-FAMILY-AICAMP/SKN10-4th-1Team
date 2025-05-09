@@ -7,12 +7,6 @@ langchain-openai # 또는 다른 LLM 연동 라이브러리
 langgraph>=0.0.40 # LangGraph 버전 명시
 google-generativeai>=0.4.0
 python-dotenv
-# lxml # XML 파싱에 lxml 사용 시
-# graphviz # 그래프 시각화 시
-# pygraphviz # 그래프 시각화 시
 google-genai
 langchain_community
-# 배포에 필요한 패키지
-# gunicorn==21.2.0  # WSGI HTTP 서버
-# whitenoise==6.5.0  # 정적 파일 서빙 도구
-# dj-database-url==2.1.0  # 데이터베이스 URL 구문 분석
+langchain_openai

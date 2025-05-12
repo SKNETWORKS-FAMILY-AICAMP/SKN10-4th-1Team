@@ -68,7 +68,31 @@ MediSearch AI는 알츠하이머 관련 의학 논문 검색을 위한 고급 RA
 
 ### ✅ RAG 파이프라인 구성
 
-![RAG 시스템 아키텍처](https://i.imgur.com/7FxRUwy.png)
+```mermaid
+sequenceDiagram
+    participant 사용자
+    participant 파이프라인 as HybridGraphFlow
+    participant LLM_쿼리분석 as LLM (쿼리 분석)
+    participant 검색모듈 as 정보 검색 (벡터/그래프 DB)
+    participant LLM_답변생성 as LLM (답변 생성)
+
+    사용자->>파이프라인: "비만과 고혈압 연관성은?"
+    activate 파이프라인
+    파이프라인->>LLM_쿼리분석: 이 질문은 어떤 검색이 좋을까?
+    activate LLM_쿼리분석
+    LLM_쿼리분석-->>파이프라인: "의미 검색과 관계 검색 둘 다 필요! (하이브리드)"
+    deactivate LLM_쿼리분석
+    파이프라인->>검색모듈: "비만", "고혈압" 관련 논문 검색 및 관계 정보 탐색!
+    activate 검색모듈
+    검색모듈-->>파이프라인: 관련 논문 목록과 주요 연결 정보 전달
+    deactivate 검색모듈
+    파이프라인->>LLM_답변생성: 이 정보들로 답변 만들어줘!
+    activate LLM_답변생성
+    LLM_답변생성-->>파이프라인: "비만과 고혈압은 밀접한 연관이 있습니다..." (생성된 답변)
+    deactivate LLM_답변생성
+    파이프라인-->>사용자: 답변 전달
+    deactivate 파이프라인
+```
 
 - **HybridGraphFlow**: LangGraph 기반 워크플로우 관리 및 검색 전략 결정
 - **Neo4jVectorSearch**: 벡터 검색 및 그래프 기반 리랭킹 수행

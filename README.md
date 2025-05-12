@@ -24,7 +24,7 @@
 
 | 황인호 | 경규휘 | 권석현 | 이종원 | 장윤홍 |
 |--------|--------|--------|--------|--------|
-|![1](https://i.namu.wiki/i/BOFPH8CsaM0suQ8bAwqQnSG1oZA3uzqmumxC6EOPnO1Y2jVraSnYFk4_02WdTMIiqzyXPmlca6ubpjuC76lwSDskcZ4Rb5WuIEZFcTvWw5szzMfIc0Kc7czfaYjQ2l1E2vlAk_eBkuBPUDrf6Wj8QA.webp)|![2](https://i.namu.wiki/i/Em1fmJtX3WTg4ATja4AbmudnC9N-y3kmaXdSw0qObITjYriIhSmuA8lIupUDgAZuhzgN-J8W3npi-8WQJu9-48eEh_Lvwl_mn0e4BXcMRDjypXxbuQ-WZuVdp94KH__lAc7zJopu3qlfv5Ftt61NxQ.webp)|![3](https://i.namu.wiki/i/qzrnG62_SvgqNMlELLr8zihfaylbiKrM4aVl15zPXuYYXlGgUhPtQ2S6KeylnXtENeKVpSoXNe5FOft4vb-9d8f6dK4KMJAlLpFou3Y0qv0lzxJqaVwG7s7Ld97VKUe8HUSXQo_aUuDXotZEE3eaQQ.webp) |![4](https://i.namu.wiki/i/DOwF6eRC1e7PaUlayI_nCI3Jxv3a4kuKNFk-S9VhpboFYFHrLLwh0__T5fPWTXDud_WsD3vnyMFJfAUnmZ3hVSuPqpoHVrhr6qvbIk28IE0J7Skjig6jXGowTyIvQEzX0u1IvIBZ1Wa9v_mzFKMjJg.webp)|![5](https://i.namu.wiki/i/q-wkyXm5gShTOpkJ3Rzag5qm3Y-3CpZtaGXTf4j8xmHgLBeMDO-hUHY5aL9sMnkFjb5k2DnUnKgAiST29Mdi4e-1CR_kpf2tlQ62WZlvusUBWWZR7iK1WU4DgTFN9W40im9lslS3pr-fsUvCY-roAw.webp)|
+|![황인호](https://i.namu.wiki/i/BOFPH8CsaM0suQ8bAwqQnSG1oZA3uzqmumxC6EOPnO1Y2jVraSnYFk4_02WdTMIiqzyXPmlca6ubpjuC76lwSDskcZ4Rb5WuIEZFcTvWw5szzMfIc0Kc7czfaYjQ2l1E2vlAk_eBkuBPUDrf6Wj8QA.webp)|![경규휘](https://i.namu.wiki/i/Em1fmJtX3WTg4ATja4AbmudnC9N-y3kmaXdSw0qObITjYriIhSmuA8lIupUDgAZuhzgN-J8W3npi-8WQJu9-48eEh_Lvwl_mn0e4BXcMRDjypXxbuQ-WZuVdp94KH__lAc7zJopu3qlfv5Ftt61NxQ.webp)|![권석현](https://i.namu.wiki/i/qzrnG62_SvgqNMlELLr8zihfaylbiKrM4aVl15zPXuYYXlGgUhPtQ2S6KeylnXtENeKVpSoXNe5FOft4vb-9d8f6dK4KMJAlLpFou3Y0qv0lzxJqaVwG7s7Ld97VKUe8HUSXQo_aUuDXotZEE3eaQQ.webp) |![이종원](https://i.namu.wiki/i/DOwF6eRC1e7PaUlayI_nCI3Jxv3a4kuKNFk-S9VhpboFYFHrLLwh0__T5fPWTXDud_WsD3vnyMFJfAUnmZ3hVSuPqpoHVrhr6qvbIk28IE0J7Skjig6jXGowTyIvQEzX0u1IvIBZ1Wa9v_mzFKMjJg.webp)|![장윤홍](https://i.namu.wiki/i/q-wkyXm5gShTOpkJ3Rzag5qm3Y-3CpZtaGXTf4j8xmHgLBeMDO-hUHY5aL9sMnkFjb5k2DnUnKgAiST29Mdi4e-1CR_kpf2tlQ62WZlvusUBWWZR7iK1WU4DgTFN9W40im9lslS3pr-fsUvCY-roAw.webp)|
 
 ---
 
@@ -212,9 +212,9 @@ http://localhost:8000
 
 ## 9. 한 줄 회고
 - **황인호** : 
-- **경규휘** : 
-- **권석현** :
-- **이종원** : 
+- **경규휘** : django를 다루면서 url 흐름을 정리하고, '화면을 어떻게 하면 깔끔하게 구성할 수 있을까'를 고민했던 뜻깊은 시간이었다고 생각합니다.
+- **권석현** : 
+- **이종원** : neo4j 활용법과 cypher query문을 다루는 방법을 배우고 GraphDB를 활용한 LangGraph를 다루게 되어 짧은 시간이었지만 뜻깊었던 것 같습니다.
 - **장윤홍** : django 로그인 기능을 구현하면서 세션 방식 로그인, jwt 방식 로그인에 대한 이해를 얻었습니다. 그리고 팀장님이 구현한 그래프 DB가 어떤 방식으로 데이터를 저장하고 LLM이 그래프DB를 참조하는지를 배울 수 있었습니다.
 
 

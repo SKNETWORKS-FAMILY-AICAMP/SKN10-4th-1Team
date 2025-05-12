@@ -3,12 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>메디리서치 AI | 의학 논문 검색</title>
+    <title>메디리서치 AI | 알츠하이머 논문 AI 검색</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         /* Custom Scrollbar */
@@ -17,21 +20,34 @@
             height: 8px;
         }
         ::-webkit-scrollbar-track {
-            background: #f1f1f1;
+            background: #f0f4f8; /* Lighter slate for track */
             border-radius: 10px;
         }
         ::-webkit-scrollbar-thumb {
-            background: #cbd5e1; /* slate-300 */
+            background: #94a3b8; /* slate-400 */
             border-radius: 10px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8; /* slate-500 */
+            background: #64748b; /* slate-500 */
         }
 
         body {
             font-family: 'Noto Sans KR', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: #f1f5f9; /* bg-slate-100 */
+            background-color: #f8fafc; /* bg-slate-50 */
             color: #1e293b; /* text-slate-800 */
+        }
+        
+        /* Mobile menu basic toggle */
+        .mobile-menu {
+            display: none;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0, 1, 0, 1);
+        }
+        .mobile-menu.active {
+            display: block;
+            max-height: 500px; /* Adjust as needed */
+            transition: max-height 1s ease-in-out;
         }
 
         /* Markdown 스타일 개선 */
@@ -131,12 +147,9 @@
             margin-right: 0.5rem; /* mr-2 */
             color: #64748b; /* slate-500 */
         }
-
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
-    {% csrf_token %}
-
     <!-- Header -->
     <header class="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-50">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -146,14 +159,21 @@
                         <i class="bi bi-clipboard2-pulse-fill mr-2.5"></i>
                         <span class="tracking-tight">메디리서치 AI</span>
                     </a>
+                    <span class="ml-3 text-sm font-semibold text-sky-700 bg-sky-100 px-2 py-0.5 rounded-full hidden md:inline">알츠하이머 연구 특화</span>
                 </div>
                 <nav class="hidden md:flex space-x-2 items-center">
                     <a href="{% url 'api:homepage' %}" class="text-gray-600 hover:text-sky-600 hover:bg-sky-50 px-4 py-2 rounded-md text-base font-medium transition-colors">
                         <i class="bi bi-house-door-fill mr-1"></i>HOME
                     </a>
+                    {% if request.user.is_authenticated %}
                     <a href="{% url 'api:search_path' %}" class="text-sky-600 border-b-2 border-sky-600 px-4 py-2 text-base font-medium" aria-current="page">
                         <i class="bi bi-chat-dots mr-1"></i>AI 검색
                     </a>
+                    {% else %}
+                    <a href="{% url 'api:search_path' %}" class="text-sky-600 border-b-2 border-sky-600 px-4 py-2 text-base font-medium" aria-current="page">
+                        <i class="bi bi-chat-dots mr-1"></i>AI 검색
+                    </a>
+                    {% endif %}
                     {% if request.user.is_authenticated %}
                     <a href="{% url 'user:logout' %}" class="text-gray-600 hover:text-sky-600 hover:bg-sky-50 px-4 py-2 rounded-md text-base font-medium transition-colors">
                         <i class="bi bi-box-arrow-right mr-1"></i>로그아웃
@@ -168,7 +188,7 @@
                     {% endif %}
                 </nav>
                 <div class="md:hidden">
-                    <button id="mobileMenuButton" type="button" class="text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-sky-500" aria-expanded="false">
+                    <button id="mobileMenuButton" type="button" class="text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-sky-500 p-2 rounded-md" aria-expanded="false">
                         <span class="sr-only">Open main menu</span>
                         <i class="bi bi-list text-3xl"></i>
                     </button>
@@ -176,14 +196,15 @@
             </div>
         </div>
         <!-- Mobile Menu -->
-        <div id="mobileMenu" class="md:hidden hidden bg-white shadow-lg absolute w-full">
-            <a href="{% url 'api:homepage' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-house-door-fill mr-2"></i>HOME</a>
-            <a href="{% url 'api:search_path' %}" class="block text-sky-600 px-4 py-3 text-base font-medium border-l-4 border-sky-600 bg-sky-50"><i class="bi bi-chat-dots mr-2"></i>AI 검색</a>
+        <div id="mobileMenu" class="mobile-menu md:hidden bg-white shadow-lg absolute w-full border-t border-gray-200">
+            <a href="{% url 'api:homepage' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-5 py-3 text-base font-medium border-l-4 border-transparent hover:border-sky-500"><i class="bi bi-house-door-fill mr-2.5"></i>HOME</a>
             {% if request.user.is_authenticated %}
-            <a href="{% url 'user:logout' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-box-arrow-right mr-2"></i>로그아웃</a>
+            <a href="{% url 'api:search_path' %}" class="block text-sky-600 px-5 py-3 text-base font-medium border-l-4 border-sky-600 bg-sky-50"><i class="bi bi-chat-dots mr-2.5"></i>AI 검색</a>
+            <a href="{% url 'user:logout' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-5 py-3 text-base font-medium border-l-4 border-transparent hover:border-sky-500"><i class="bi bi-box-arrow-right mr-2.5"></i>로그아웃</a>
             {% else %}
-            <a href="{% url 'user:login' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-box-arrow-in-right mr-2"></i>로그인</a>
-            <a href="{% url 'user:signup' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-person-plus mr-2"></i>회원가입</a>
+            <a href="{% url 'api:search_path' %}" class="block text-sky-600 px-5 py-3 text-base font-medium border-l-4 border-sky-600 bg-sky-50"><i class="bi bi-chat-dots mr-2.5"></i>AI 검색</a>
+            <a href="{% url 'user:login' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-5 py-3 text-base font-medium border-l-4 border-transparent hover:border-sky-500"><i class="bi bi-box-arrow-in-right mr-2.5"></i>로그인</a>
+            <a href="{% url 'user:signup' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-5 py-3 text-base font-medium border-l-4 border-transparent hover:border-sky-500"><i class="bi bi-person-plus-fill mr-2.5"></i>회원가입</a>
             {% endif %}
         </div>
     </header>
@@ -204,14 +225,15 @@
                 <div id="chatContainer" class="chat-container flex-grow bg-white p-4 sm:p-6 rounded-lg shadow-lg overflow-y-auto" style="height: 65vh;">
                     <div class="message assistant-message bg-slate-100 p-4 rounded-xl shadow-sm mb-4 max-w-[85%]">
                         <div class="markdown-body">
-                            안녕하세요! <strong>메디리서치 AI</strong>입니다. 의학 연구 논문에 대해 질문해 주세요.
-                            <br>LangGraph 기반의 하이브리드 검색 시스템이 다음과 같은 방식으로 작동합니다:
+                            안녕하세요! <strong>메디리서치 AI</strong>입니다. 
+                            <strong>알츠하이머병</strong>은 복잡한 질환이지만, 저희 시스템이 관련 연구 논문 검색을 도와 최신 정보와 통찰력을 얻으실 수 있도록 지원합니다. 궁금한 점을 질문해 주세요.
+                            <br><br>LangGraph 기반의 하이브리드 검색 시스템이 다음과 같은 방식으로 작동합니다:
                             <ol class="list-decimal list-inside mt-2">
-                                <li><strong>벡터 검색:</strong> 유사성 기반 의미적 검색 (예: "비만 치료법에 대한 최신 연구는?")</li>
-                                <li><strong>그래프 검색:</strong> 관계 기반 구조적 검색 (예: "고혈압과 당뇨병의 연관성은?")</li>
-                                <li><strong>하이브리드 검색:</strong> 벡터+그래프 결합 검색 (기본 모드)</li>
+                                <li><strong>벡터 검색:</strong> 유사성 기반 의미적 검색 (예: "알츠하이머병 초기 진단을 위한 최신 바이오마커 연구는?")</li>
+                                <li><strong>그래프 검색:</strong> 관계 기반 구조적 검색 (예: "APOE4 유전자와 타우 병리 사이의 알츠하이머병 내 기전적 연결성은?")</li>
+                                <li><strong>하이브리드 검색:</strong> 벡터+그래프 결합 검색 (기본 모드, 예: "알츠하이머병 진행을 늦추는 비약물적 치료법과 생활 습관 개선 연구를 종합적으로 알려줘.")</li>
                             </ol>
-                            질문에 따라 자동으로 최적의 검색 전략을 선택합니다.
+                            질문에 따라 자동으로 최적의 검색 전략을 선택하여 알츠하이머병 연구에 대한 깊이 있는 정보를 제공합니다.
                         </div>
                     </div>
                     <!-- Loading Indicator: Moved inside chatContainer and styled like an assistant message -->
@@ -226,11 +248,9 @@
                     </div>
                 </div>
                 
-                <!-- Loading Indicator removed from here -->
-                
                 <div class="mt-4">
                     <div class="flex items-center bg-white p-1.5 rounded-lg shadow-lg border border-slate-200">
-                        <input type="text" id="userInput" class="flex-grow p-3 border-none focus:ring-0 text-slate-700 placeholder-slate-400 input-focus-effect" placeholder="여기에 질문을 입력하세요...">
+                        <input type="text" id="userInput" class="flex-grow p-3 border-none focus:ring-0 text-slate-700 placeholder-slate-400 input-focus-effect" placeholder="알츠하이머병 관련 질문을 입력하세요...">
                         <button id="sendButton" class="bg-sky-600 hover:bg-sky-700 text-white font-semibold py-3 px-5 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2">
                             <i class="bi bi-send-fill"></i>
                         </button>
@@ -242,27 +262,27 @@
             <div class="lg:col-span-5">
                 <div class="sidebar bg-white p-4 sm:p-6 rounded-lg shadow-lg space-y-6" style="height: calc(65vh + 76px); overflow-y: auto;">
                     <div>
-                        <h3 class="sidebar-section-title"><i class="bi bi-search-heart"></i>검색 결과</h3>
+                        <h3 class="sidebar-section-title"><i class="bi bi-search-heart"></i>검색된 알츠하이머 논문</h3>
                         <div id="retrievedDocs" class="space-y-3">
-                            <p class="text-sm text-slate-500">검색 결과가 여기에 표시됩니다.</p>
+                            <p class="text-sm text-slate-500">알츠하이머병 관련 검색 결과가 여기에 표시됩니다.</p>
                         </div>
                     </div>
 
                     <hr class="border-slate-200">
 
                     <div>
-                        <h3 class="sidebar-section-title"><i class="bi bi-info-circle"></i>선택 논문 정보</h3>
+                        <h3 class="sidebar-section-title"><i class="bi bi-info-circle"></i>선택 논문 상세 정보</h3>
                         <div id="relatedInfo" class="space-y-2 text-sm">
-                            <p class="text-slate-500">선택된 논문의 관련 정보가 여기에 표시됩니다.</p>
+                            <p class="text-slate-500">선택된 알츠하이머 논문의 관련 정보가 여기에 표시됩니다.</p>
                         </div>
                     </div>
                     
                     <hr class="border-slate-200">
 
                     <div>
-                        <h3 class="sidebar-section-title"><i class="bi bi-diagram-3"></i>논문 간 연결</h3>
+                        <h3 class="sidebar-section-title"><i class="bi bi-diagram-3"></i>논문 간 연결 관계 (알츠하이머 연구)</h3>
                         <div id="connections" class="space-y-2 text-sm">
-                            <p class="text-slate-500">선택된 논문과 연결된 다른 논문들이 여기에 표시됩니다.</p>
+                            <p class="text-slate-500">선택된 알츠하이머 논문과 연결된 다른 논문들이 여기에 표시됩니다.</p>
                         </div>
                     </div>
                 </div>
@@ -273,8 +293,8 @@
     <!-- Footer -->
     <footer class="bg-slate-800 text-slate-300 py-8 text-center">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-            <p class="text-sm">&copy; 2024 메디리서치 AI. 모든 권리 보유.</p>
-            <p class="text-xs mt-1">본 시스템은 정보 제공 목적으로만 사용되며, 전문적인 의학적 조언을 대체할 수 없습니다.</p>
+            <p class="text-sm">&copy; 2024 메디리서치 AI (알츠하이머 연구 특화). 모든 권리 보유.</p>
+            <p class="text-xs mt-1">본 시스템은 알츠하이머병 관련 연구 정보 제공 목적으로만 사용되며, 전문적인 의학적 조언을 대체할 수 없습니다.</p>
         </div>
     </footer>
 
@@ -286,7 +306,7 @@
             const retrievedDocs = document.getElementById('retrievedDocs');
             const relatedInfo = document.getElementById('relatedInfo');
             const connections = document.getElementById('connections');
-            const loadingIndicator = document.getElementById('loadingIndicator'); // This now refers to the one inside chatContainer
+            const loadingIndicator = document.getElementById('loadingIndicator');
             const queryTypeBadge = document.getElementById('queryTypeBadge');
             const mobileMenuButton = document.getElementById('mobileMenuButton');
             const mobileMenu = document.getElementById('mobileMenu');
@@ -319,9 +339,9 @@
             
             function getQueryTypeLabel(queryType) {
                 switch(queryType) {
-                    case 'vector': return '벡터 검색';
-                    case 'graph': return '그래프 검색';
-                    case 'hybrid': return '하이브리드 검색';
+                    case 'vector': return '벡터 검색 (알츠하이머)';
+                    case 'graph': return '그래프 검색 (알츠하이머)';
+                    case 'hybrid': return '하이브리드 검색 (알츠하이머)';
                     default: return '준비중';
                 }
             }
@@ -329,7 +349,7 @@
             function getSearchTypeIcon(searchType) {
                 if (searchType === 'graph') {
                     return '<i class="bi bi-diagram-3-fill text-emerald-500" title="그래프 검색 결과"></i>';
-                } else { // vector or hybrid (which might primarily use vector display)
+                } else { 
                     return '<i class="bi bi-vector-pen text-blue-500" title="벡터/하이브리드 검색 결과"></i>';
                 }
             }
@@ -349,19 +369,21 @@
                 appendMessage(query, 'user');
                 userInput.value = '';
                 
-                // Show loading indicator (now as a chat message)
                 loadingIndicator.classList.remove('hidden');
                 chatContainer.scrollTop = chatContainer.scrollHeight;
 
-                fetch('/search/?v=' + new Date().getTime(), {
+                // NOTE: The CSRF token logic is kept, but for a static demo without a Django backend,
+                // getCookie('csrftoken') will likely return null or an empty string.
+                // The backend this fetch call points to should be aware of this if CSRF is usually enforced.
+                fetch('/search/?v=' + new Date().getTime(), { 
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRFToken': getCookie('csrftoken') || ''
+                        'X-CSRFToken': getCookie('csrftoken') || '' 
                     },
                     body: JSON.stringify({
                         query: query,
-                        chat_history: chatHistory
+                        chat_history: chatHistory 
                     })
                 })
                 .then(response => {
@@ -375,7 +397,7 @@
                 })
                 .catch(error => {
                     console.error('오류:', error);
-                    loadingIndicator.classList.add('hidden'); // Hide loading indicator on error
+                    loadingIndicator.classList.add('hidden');
                     let errorMessage = '요청 처리 중 오류가 발생했습니다. 다시 시도해 주세요.';
                     if (error && error.detail) {
                         errorMessage = `서버 오류: ${error.detail}`;
@@ -387,20 +409,16 @@
             }
 
             function handleApiResponse(data) {
-                loadingIndicator.classList.add('hidden'); // Hide loading indicator
-                
-                // 디버깅: 받은 데이터 콘솔에 출력
+                loadingIndicator.classList.add('hidden');
                 console.log('API 응답 데이터:', data);
                 
-                // 원본 LLM 응답 표시
                 appendMessage(data.answer, 'assistant');
                 
-                // 추가 응답이 있으면 연속해서 표시 (Tavily 검색 결과 기반)
                 if (data.additional_answer) {
                     console.log('추가 응답 있음:', data.additional_answer.substring(0, 50) + '...');
                     setTimeout(() => {
                         appendMessage(data.additional_answer, 'assistant');
-                    }, 500); // 약간의 딜레이를 주어 연속적인 느낌을 줍니다
+                    }, 500); 
                 } else {
                     console.log('추가 응답 없음');
                 }
@@ -415,14 +433,13 @@
                 messageWrapper.classList.add('message', 'mb-4', 'flex');
 
                 const messageDiv = document.createElement('div');
-                // Tailwind classes for general message bubble styling
                 messageDiv.classList.add('p-3', 'sm:p-4', 'rounded-xl', 'shadow-sm', 'max-w-[85%]', 'text-sm', 'sm:text-base');
 
                 if (sender === 'user') {
                     messageWrapper.classList.add('justify-end');
                     messageDiv.classList.add('bg-sky-500', 'text-white');
                     messageDiv.textContent = text;
-                } else { // Assistant
+                } else { 
                     messageWrapper.classList.add('justify-start');
                     if (isError) {
                         messageDiv.classList.add('bg-red-100', 'text-red-700', 'border', 'border-red-300');
@@ -437,15 +454,23 @@
                 }
                 
                 messageWrapper.appendChild(messageDiv);
-                chatContainer.insertBefore(messageWrapper, loadingIndicator); // Insert new message before the loading indicator
+                chatContainer.insertBefore(messageWrapper, loadingIndicator);
                 chatContainer.scrollTop = chatContainer.scrollHeight;
             }
             
             function updateRetrievedDocs(docs) {
+                const placeholderText = document.querySelector('#retrievedDocs p.text-slate-500');
                 if (!docs || docs.length === 0) {
-                    retrievedDocs.innerHTML = '<p class="text-sm text-slate-500 p-3 bg-slate-50 rounded-md">검색된 논문이 없습니다.</p>';
-                    relatedInfo.innerHTML = '<p class="text-slate-500">선택된 논문의 관련 정보가 여기에 표시됩니다.</p>';
-                    connections.innerHTML = '<p class="text-slate-500">선택된 논문과 연결된 다른 논문들이 여기에 표시됩니다.</p>';
+                    if (placeholderText) placeholderText.textContent = '검색된 알츠하이머 논문이 없습니다.';
+                    else retrievedDocs.innerHTML = '<p class="text-sm text-slate-500 p-3 bg-slate-50 rounded-md">검색된 알츠하이머 논문이 없습니다.</p>';
+                    
+                    const relatedInfoPlaceholder = document.querySelector('#relatedInfo p.text-slate-500');
+                    if (relatedInfoPlaceholder) relatedInfoPlaceholder.textContent = '선택된 알츠하이머 논문의 관련 정보가 여기에 표시됩니다.';
+                    else relatedInfo.innerHTML = '<p class="text-slate-500">선택된 알츠하이머 논문의 관련 정보가 여기에 표시됩니다.</p>';
+                    
+                    const connectionsPlaceholder = document.querySelector('#connections p.text-slate-500');
+                    if (connectionsPlaceholder) connectionsPlaceholder.textContent = '선택된 알츠하이머 논문과 연결된 다른 논문들이 여기에 표시됩니다.';
+                    else connections.innerHTML = '<p class="text-slate-500">선택된 알츠하이머 논문과 연결된 다른 논문들이 여기에 표시됩니다.</p>';
                     return;
                 }
                 
@@ -487,12 +512,11 @@
                             card.classList.remove('active', 'bg-sky-50', 'border-l-sky-500', 'bg-blue-50', 'border-l-blue-500', 'bg-emerald-50', 'border-l-emerald-500');
                         });
                         docCard.classList.add('active');
-                        // Re-apply specific active styles based on type
                         if (docCard.classList.contains('vector-result')) {
                            docCard.classList.add('bg-blue-50', 'border-l-blue-500');
                         } else if (docCard.classList.contains('graph-result')) {
                            docCard.classList.add('bg-emerald-50', 'border-l-emerald-500');
-                        } else { // Default or hybrid
+                        } else { 
                            docCard.classList.add('bg-sky-50', 'border-l-sky-500');
                         }
                         fetchDocumentInfo(doc.pmid);
@@ -513,7 +537,7 @@
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        정보 로딩 중...
+                        알츠하이머 논문 정보 로딩 중...
                     </div>`;
                 relatedInfo.innerHTML = loadingHtml;
                 connections.innerHTML = loadingHtml;
@@ -537,15 +561,17 @@
                 })
                 .catch(error => {
                     console.error('문서 정보 요청 오류:', error);
-                    const errorMsg = '<p class="text-sm text-red-600 p-3 bg-red-50 rounded-md"><i class="bi bi-exclamation-circle mr-1"></i> 정보를 가져오는 중 오류가 발생했습니다.</p>';
+                    const errorMsg = '<p class="text-sm text-red-600 p-3 bg-red-50 rounded-md"><i class="bi bi-exclamation-circle mr-1"></i> 알츠하이머 논문 정보를 가져오는 중 오류가 발생했습니다.</p>';
                     relatedInfo.innerHTML = errorMsg;
                     connections.innerHTML = errorMsg;
                 });
             }
             
             function updateRelatedInfo(info) {
+                 const placeholder = document.querySelector('#relatedInfo p.text-slate-500');
                 if (!info || Object.keys(info).length === 0) {
-                    relatedInfo.innerHTML = '<p class="text-sm text-slate-500 p-3 bg-slate-50 rounded-md">관련 정보가 없습니다.</p>';
+                    if (placeholder) placeholder.textContent = '선택된 알츠하이머 논문에 대한 관련 정보가 없습니다.';
+                    else relatedInfo.innerHTML = '<p class="text-sm text-slate-500 p-3 bg-slate-50 rounded-md">선택된 알츠하이머 논문에 대한 관련 정보가 없습니다.</p>';
                     return;
                 }
                 
@@ -562,10 +588,16 @@
                 if (info.keywords && info.keywords.length > 0) {
                     const keywordTerms = info.keywords.map(keyword => {
                         let termDisplay = (typeof keyword === 'object' && keyword.term) ? keyword.term : keyword;
-                        return `<span class="inline-block bg-sky-100 text-sky-700 text-xs font-medium px-2 py-0.5 rounded-full mr-1 mb-1">${termDisplay}</span>`;
+                        // Highlight Alzheimer's related keywords if any, e.g. "Alzheimer", "Dementia", "Tau", "Amyloid"
+                        const alzRelatedRegex = /alzheimer|dementia|tau|amyloid|apoe/i;
+                        let keywordClass = "inline-block bg-sky-100 text-sky-700 text-xs font-medium px-2 py-0.5 rounded-full mr-1 mb-1";
+                        if(alzRelatedRegex.test(termDisplay)) {
+                            keywordClass = "inline-block bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full mr-1 mb-1";
+                        }
+                        return `<span class="${keywordClass}">${termDisplay}</span>`;
                     }).join('');
                     html += `<div class="relation-item p-2.5 bg-slate-50 rounded-md border border-slate-200">
-                                <strong class="text-slate-700 text-xs block mb-1"><i class="bi bi-tags-fill text-slate-400 mr-1.5"></i>키워드:</strong>
+                                <strong class="text-slate-700 text-xs block mb-1"><i class="bi bi-tags-fill text-slate-400 mr-1.5"></i>키워드 (알츠하이머 연구 관련):</strong>
                                 <div>${keywordTerms}</div>
                              </div>`;
                 }
@@ -589,8 +621,10 @@
             }
             
             function updateConnections(conns) {
+                const placeholder = document.querySelector('#connections p.text-slate-500');
                 if (!conns || conns.length === 0) {
-                    connections.innerHTML = '<p class="text-sm text-slate-500 p-3 bg-slate-50 rounded-md">연결된 논문이 없습니다.</p>';
+                    if (placeholder) placeholder.textContent = '선택된 알츠하이머 논문과 연결된 다른 논문이 없습니다.';
+                    else connections.innerHTML = '<p class="text-sm text-slate-500 p-3 bg-slate-50 rounded-md">선택된 알츠하이머 논문과 연결된 다른 논문이 없습니다.</p>';
                     return;
                 }
                 
@@ -604,7 +638,7 @@
                         const targetRel = conn.target_relation || '';
                         
                         if (sharedName) {
-                            relationText = `<span class="inline-block bg-teal-100 text-teal-700 text-xs font-medium px-2 py-0.5 rounded-full mr-1">${sharedType}</span> <strong class="text-teal-800">"${sharedName}"</strong> 기반 연결`;
+                            relationText = `<span class="inline-block bg-teal-100 text-teal-700 text-xs font-medium px-2 py-0.5 rounded-full mr-1">${sharedType}</span> <strong class="text-teal-800">"${sharedName}"</strong> 기반 연결 (알츠하이머 연구)`;
                         }
                         if (sourceRel && targetRel) {
                             relationText += `<br><small class="text-slate-500">(${sourceRel} <i class="bi bi-arrow-right-short"></i> ${targetRel})</small>`;
@@ -642,20 +676,31 @@
                 return cookieValue;
             }
 
-            // Initial state
             updateQueryTypeBadge('unknown');
             
-            // Mobile menu toggle
             if (mobileMenuButton && mobileMenu) {
                 mobileMenuButton.addEventListener('click', () => {
-                    mobileMenu.classList.toggle('hidden');
-                    const isExpanded = mobileMenuButton.getAttribute('aria-expanded') === 'true' || false;
-                    mobileMenuButton.setAttribute('aria-expanded', !isExpanded);
+                    const isActive = mobileMenu.classList.toggle('active');
+                    mobileMenuButton.setAttribute('aria-expanded', isActive);
+                    const icon = mobileMenuButton.querySelector('i');
+                    if (isActive) {
+                        icon.classList.remove('bi-list');
+                        icon.classList.add('bi-x-lg');
+                    } else {
+                        icon.classList.remove('bi-x-lg');
+                        icon.classList.add('bi-list');
+                    }
                 });
             }
+             // Initial update of placeholder texts in sidebar
+            const retrievedDocsPlaceholder = document.querySelector('#retrievedDocs p.text-slate-500');
+            if (retrievedDocsPlaceholder) retrievedDocsPlaceholder.textContent = '알츠하이머병 관련 검색 결과가 여기에 표시됩니다.';
+            
+            const relatedInfoPlaceholder = document.querySelector('#relatedInfo p.text-slate-500');
+            if (relatedInfoPlaceholder) relatedInfoPlaceholder.textContent = '선택된 알츠하이머 논문의 관련 정보가 여기에 표시됩니다.';
 
-            // JavaScript for handling desktop nav is now redundant as we're using Django templates for authentication
-            // This is kept here for legacy purposes but can be removed in the future
+            const connectionsPlaceholder = document.querySelector('#connections p.text-slate-500');
+            if (connectionsPlaceholder) connectionsPlaceholder.textContent = '선택된 알츠하이머 논문과 연결된 다른 논문들이 여기에 표시됩니다.';
         });
     </script>
 </body>

@@ -152,8 +152,13 @@ sequenceDiagram
 
 ### ✅ 화면 구성
 
-![홈페이지 화면](https://i.imgur.com/8FxRUwy.png)
-![AI 검색 화면](https://i.imgur.com/9FxRUwy.png)
+- **홈페이지 화면**
+  
+<img src="images/homepage.png" alt="홈페이지" width="700"/>
+
+- **AI 검색 화면**
+
+<img src="images/chatbot.png" alt="챗봇페이지" width="700"/>
 
 ## 8. 설치 및 실행 가이드
 

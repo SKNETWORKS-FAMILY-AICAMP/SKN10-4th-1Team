@@ -19,20 +19,20 @@
 
 ---
 
-## 01. 팀 소개
+## 1. 팀 소개
 
 ### ✅ 팀명: MediSearch AI
 알츠하이머 연구를 위한 최첨단.맞춤형 의학 논문 검색 도구
 
 ### ✅ 팀원 소개
 
-| 팀원 1 | 팀원 2 | 팀원 3 | 팀원 4 | 팀원 5 |
+| 황인호 | 경규휘 | 권석현 | 이종원 | 장윤홍 |
 |--------|--------|--------|--------|--------|
 | 기술 설계 | RAG 개발 | 백엔드 개발 | 프론트엔드 개발 | 데이터 처리 |
 
 ---
 
-## 02. 프로젝트 개요
+## 2. 프로젝트 개요
 
 ### ✅ 프로젝트 명: MediSearch AI
 ### ✅ 프로젝트 소개: 알츠하이머 연구를 위한 의학 논문 검색 시스템
@@ -46,7 +46,7 @@ MediSearch AI는 알츠하이머 관련 의학 논문 검색을 위한 고급 RA
 - **LLM 기반 응답 생성**: Google Gemini 모델을 활용한 정확한 정보 요약
 - **다국어 지원**: 한국어 질의에 대한 한국어 응답 생성
 
-## 03. 기술 스택
+## 3. 기술 스택
 
 | 카테고리 | 기술 스택 |
 |----------|-------------------------------------------|
@@ -56,7 +56,7 @@ MediSearch AI는 알츠하이머 관련 의학 논문 검색을 위한 고급 RA
 | **AI 모델** | ![Google Gemini](https://img.shields.io/badge/Google%20Gemini-4285F4?style=for-the-badge&logo=Google&logoColor=white) ![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=OpenAI&logoColor=white) |
 | **프론트엔드** | ![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-38B2AC?style=for-the-badge&logo=Tailwind-CSS&logoColor=white) ![Bootstrap Icons](https://img.shields.io/badge/Bootstrap%20Icons-7952B3?style=for-the-badge&logo=Bootstrap&logoColor=white) |
 
-## 04. 시스템 아키텍처
+## 4. 시스템 아키텍처
 
 ### ✅ 검색 파이프라인
 
@@ -78,7 +78,7 @@ MediSearch AI는 알츠하이머 관련 의학 논문 검색을 위한 고급 RA
 - **Neo4jVectorSearch**: 벡터 검색 및 그래프 기반 리랭킹 수행
 - **GeminiLLM**: 검색 결과 기반 응답 생성
 
-## 05. 디렉토리 구조
+## 5. 디렉토리 구조
 
 ```
 ├── api/                 # Django API 구현
@@ -102,7 +102,7 @@ MediSearch AI는 알츠하이머 관련 의학 논문 검색을 위한 고급 RA
 └── manage.py            # Django 관리 스크립트
 ```
 
-## 06. 팀 구성 및 역할
+## 6. 팀 구성 및 역할
 
 ### ✅ 업무 분담표
 
@@ -117,11 +117,9 @@ MediSearch AI는 알츠하이머 관련 의학 논문 검색을 위한 고급 RA
 ### ✅ 협업 도구
 
 - **코드 관리**: GitHub
-- **문서 공유**: Notion
-- **커뮤니케이션**: Slack, Discord
-- **태스크 관리**: Trello
+- **커뮤니케이션**: Discord
 
-## 07. 주요 기능
+## 7. 주요 기능
 
 ### ✅ 홈페이지
 
@@ -147,7 +145,7 @@ MediSearch AI는 알츠하이머 관련 의학 논문 검색을 위한 고급 RA
 ![홈페이지 화면](https://i.imgur.com/8FxRUwy.png)
 ![AI 검색 화면](https://i.imgur.com/9FxRUwy.png)
 
-## 08. 설치 및 실행 가이드
+## 8. 설치 및 실행 가이드
 
 ### ✅ 요구사항
 
@@ -197,7 +195,7 @@ python manage.py runserver
 http://localhost:8000
 ```
 
-## 09. 향후 개선 계획
+## 9. 향후 개선 계획
 
 ### ✅ 기능 개선 계획
 
@@ -212,7 +210,3 @@ http://localhost:8000
 - **LangGraph 워크플로우 고도화**: 더 복잡한 검색 패턴 지원
 - **다양한 모델 지원**: 추가 LLM 모델 통합 (Claude, Llama 등)
 - **다국어 지원 확장**: 영어, 한국어 외 추가 언어 지원
-
----
-
-🏆 **SK Networks AI Camp 10기 - 4th 1Team 프로젝트**

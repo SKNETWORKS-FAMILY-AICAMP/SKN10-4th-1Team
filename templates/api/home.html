@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>메디리서치 AI | Home</title>
+    <title>메디리서치 AI | 알츠하이머 연구</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,7 +31,7 @@
             font-family: 'Noto Sans KR', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             background-color: #f8fafc; /* bg-slate-50 */
             color: #1e293b; /* text-slate-800 */
-            scroll-behavior: smooth;
+            /* scroll-behavior: smooth; -- Moved to html tag using Tailwind class */
         }
 
         .hero-gradient {
@@ -42,17 +42,26 @@
              background: linear-gradient(135deg, #7dd3fc 0%, #0ea5e9 100%); /* sky-300 to sky-500 */
         }
 
-        .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
         .feature-card {
-            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, border-color 0.3s ease-in-out;
+        }
+        .feature-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12);
+            border-color: #38bdf8; /* sky-400 */
+        }
+        .feature-card .feature-icon-container i {
+            transition: color 0.3s ease-in-out, transform 0.3s ease-in-out;
+        }
+        .feature-card:hover .feature-icon-container i {
+            color: #0284c7; /* sky-600 */
+            transform: scale(1.15) rotate(-5deg);
         }
 
+
         .section-title {
-            font-weight: 700;
-            color: #0f172a; /* slate-900 */
+            font-weight: 700; /* font-bold */
+            color: #0f172a; /* text-slate-900 */
         }
         
         .btn-primary {
@@ -93,7 +102,7 @@
             outline-offset: 2px;
         }
         .btn:hover {
-            transform: scale(1.05);
+            transform: scale(1.05); /* Keep this general scale for buttons */
         }
         .btn:focus {
             outline: none;
@@ -106,20 +115,38 @@
         /* Mobile menu basic toggle */
         .mobile-menu {
             display: none;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0, 1, 0, 1);
         }
         .mobile-menu.active {
             display: block;
+            max-height: 500px; /* Adjust as needed */
+            transition: max-height 1s ease-in-out;
         }
         
         /* Animation for elements appearing on scroll */
         .fade-in-section {
             opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
         }
         .fade-in-section.is-visible {
             opacity: 1;
             transform: translateY(0);
+        }
+
+        .step-icon-container {
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); /* Elastic bounce */
+        }
+        .step-icon-container:hover {
+            transform: scale(1.15) rotate(8deg);
+        }
+        .step-icon-container i {
+             transition: color 0.3s ease-in-out;
+        }
+        .step-icon-container:hover i {
+            color: #0ea5e9; /* sky-500 */
         }
 
     </style>
@@ -135,6 +162,7 @@
                         <i class="bi bi-clipboard2-pulse-fill mr-2.5"></i>
                         <span class="tracking-tight">메디리서치 AI</span>
                     </a>
+                    <span class="ml-3 text-sm font-semibold text-sky-700 bg-sky-100 px-2 py-0.5 rounded-full hidden md:inline">알츠하이머 연구 특화</span>
                 </div>
                 <nav class="hidden md:flex space-x-2 items-center">
                     <a href="{% url 'api:homepage' %}" class="text-sky-600 border-b-2 border-sky-600 px-4 py-2 text-base font-medium" aria-current="page">
@@ -157,7 +185,7 @@
                     </a>
                 </nav>
                 <div class="md:hidden">
-                    <button id="mobileMenuButton" type="button" class="text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-sky-500" aria-expanded="false">
+                    <button id="mobileMenuButton" type="button" class="text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-sky-500 p-2 rounded-md" aria-expanded="false">
                         <span class="sr-only">Open main menu</span>
                         <i class="bi bi-list text-3xl"></i>
                     </button>
@@ -165,15 +193,15 @@
             </div>
         </div>
         <!-- Mobile Menu -->
-        <div id="mobileMenu" class="mobile-menu md:hidden bg-white shadow-lg absolute w-full">
-            <a href="{% url 'api:homepage' %}" class="block text-sky-600 px-4 py-3 text-base font-medium border-l-4 border-sky-600 bg-sky-50"><i class="bi bi-house-door-fill mr-2"></i>HOME</a>
+        <div id="mobileMenu" class="mobile-menu md:hidden bg-white shadow-lg absolute w-full border-t border-gray-200">
+            <a href="{% url 'api:homepage' %}" class="block text-sky-600 px-5 py-3 text-base font-medium border-l-4 border-sky-600 bg-sky-50"><i class="bi bi-house-door-fill mr-2.5"></i>HOME</a>
             {% if request.user.is_authenticated %}
-            <a href="{% url 'api:search_path' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-chat-dots mr-2"></i>AI 검색</a>
-            <a href="{% url 'user:logout' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-box-arrow-right mr-2"></i>로그아웃</a>
+            <a href="{% url 'api:search_path' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-5 py-3 text-base font-medium border-l-4 border-transparent hover:border-sky-500"><i class="bi bi-chat-dots mr-2.5"></i>AI 검색</a>
+            <a href="{% url 'user:logout' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-5 py-3 text-base font-medium border-l-4 border-transparent hover:border-sky-500"><i class="bi bi-box-arrow-right mr-2.5"></i>로그아웃</a>
             {% else %}
-            <a href="{% url 'user:login' %}?next={% url 'api:search_path' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-chat-dots mr-2"></i>AI 검색</a>
-            <a href="{% url 'user:login' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-box-arrow-in-right mr-2"></i>로그인</a>
-            <a href="{% url 'user:signup' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-4 py-3 text-base font-medium"><i class="bi bi-person-plus-fill mr-2"></i>회원가입</a>
+            <a href="{% url 'user:login' %}?next={% url 'api:search_path' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-5 py-3 text-base font-medium border-l-4 border-transparent hover:border-sky-500"><i class="bi bi-chat-dots mr-2.5"></i>AI 검색</a>
+            <a href="{% url 'user:login' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-5 py-3 text-base font-medium border-l-4 border-transparent hover:border-sky-500"><i class="bi bi-box-arrow-in-right mr-2.5"></i>로그인</a>
+            <a href="{% url 'user:signup' %}" class="block text-gray-700 hover:text-sky-600 hover:bg-sky-50 px-5 py-3 text-base font-medium border-l-4 border-transparent hover:border-sky-500"><i class="bi bi-person-plus-fill mr-2.5"></i>회원가입</a>
             {% endif %}
         </div>
     </header>
@@ -183,18 +211,19 @@
         <!-- Hero Section -->
         <section class="hero-gradient py-20 md:py-32 fade-in-section">
             <div class="container mx-auto px-6 lg:px-8 text-center">
-                <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-sky-700 mb-6 leading-tight">
-                    의학 연구의 미래, <br class="sm:hidden">AI와 함께 탐색하세요
+                <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-800 mb-6 leading-tight">
+                    <span class="inline-block text-transparent bg-clip-text bg-gradient-to-br from-sky-500 via-sky-600 to-cyan-600 py-1">알츠하이머 연구</span>의 돌파구,
+                    <br class="sm:hidden">AI와 함께 찾아내세요
                 </h1>
                 <p class="text-lg sm:text-xl text-slate-700 max-w-3xl mx-auto mb-10 leading-relaxed">
-                    메디리서치 AI는 최첨단 하이브리드 검색 기술을 통해 방대한 의학 논문 속에서<br>
-                    가장 정확하고 연관성 높은 정보를 신속하게 찾아드립니다.
+                    메디리서치 AI는 최첨단 하이브리드 검색 기술을 통해 방대한 알츠하이머 연구 논문 속에서<br>
+                    가장 정확하고 연관성 높은 정보를 신속하게 찾아, 연구의 효율성을 극대화합니다.
                 </p>
-                <div class="space-x-4">
-                    <a href="{% url 'api:search_path' %}" class="btn btn-primary text-lg">
+                <div class="space-y-4 sm:space-y-0 sm:space-x-4">
+                    <a href="{% url 'api:search_path' %}" class="btn btn-primary text-lg w-full sm:w-auto">
                         <i class="bi bi-search-heart-fill mr-2"></i>AI 검색 시작하기
                     </a>
-                    <a href="#features" class="btn btn-secondary text-lg">
+                    <a href="#features" class="btn btn-secondary text-lg w-full sm:w-auto">
                         <i class="bi bi-lightbulb-fill mr-2"></i>주요 기능 보기
                     </a>
                 </div>
@@ -206,37 +235,37 @@
             <div class="container mx-auto px-6 lg:px-8">
                 <div class="text-center mb-12 md:mb-16">
                     <span class="text-sky-600 font-semibold tracking-wide uppercase">Our Advantages</span>
-                    <h2 class="section-title text-3xl sm:text-4xl mt-2">메디리서치 AI만의 특별한 기능</h2>
+                    <h2 class="section-title text-3xl sm:text-4xl mt-2">알츠하이머 연구를 위한 특화 기능</h2>
                     <p class="text-slate-600 mt-4 max-w-2xl mx-auto text-lg">
-                        복잡한 의학 연구 과정을 단순화하고, 더 깊이 있는 통찰력을 제공합니다.
+                        복잡한 알츠하이머 연구 과정을 단순화하고, 질병의 기전 이해부터 치료 전략 수립까지 심층적인 통찰력을 제공합니다.
                     </p>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <div class="feature-card bg-slate-50 p-8 rounded-xl shadow-lg border border-slate-200">
-                        <div class="text-sky-500 mb-5">
+                    <div class="feature-card bg-slate-50 p-8 rounded-xl shadow-lg border border-slate-200 flex flex-col">
+                        <div class="feature-icon-container text-sky-500 mb-5">
                             <i class="bi bi-bounding-box text-5xl"></i>
                         </div>
                         <h3 class="text-2xl font-semibold text-slate-800 mb-3">지능형 하이브리드 검색</h3>
-                        <p class="text-slate-600 leading-relaxed">
-                            벡터 검색의 의미적 유사성과 그래프 검색의 관계적 맥락을 결합하여, 질문 의도에 가장 부합하는 다각적인 검색 결과를 제공합니다.
+                        <p class="text-slate-600 leading-relaxed flex-grow">
+                            벡터 검색의 의미적 유사성과 그래프 검색의 관계적 맥락을 결합하여, 알츠하이머병의 복잡한 기전 이해 및 치료 전략 수립에 필요한 다각적인 검색 결과를 제공합니다.
                         </p>
                     </div>
-                    <div class="feature-card bg-slate-50 p-8 rounded-xl shadow-lg border border-slate-200">
-                        <div class="text-sky-500 mb-5">
+                    <div class="feature-card bg-slate-50 p-8 rounded-xl shadow-lg border border-slate-200 flex flex-col">
+                        <div class="feature-icon-container text-sky-500 mb-5">
                             <i class="bi bi-graph-up-arrow text-5xl"></i>
                         </div>
-                        <h3 class="text-2xl font-semibold text-slate-800 mb-3">최신 연구 동향 분석</h3>
-                        <p class="text-slate-600 leading-relaxed">
-                            실시간으로 업데이트되는 방대한 논문 데이터베이스를 기반으로 특정 질병, 치료법, 약물에 대한 최신 연구 동향과 핵심 정보를 빠르게 파악할 수 있습니다.
+                        <h3 class="text-2xl font-semibold text-slate-800 mb-3">최신 알츠하이머 동향 분석</h3>
+                        <p class="text-slate-600 leading-relaxed flex-grow">
+                            실시간 업데이트되는 알츠하이머 전문 논문 데이터베이스를 기반으로 질병의 조기 진단, 예방, 혁신 치료제 개발, 병인 규명 등 최신 연구 동향과 핵심 정보를 빠르게 파악합니다.
                         </p>
                     </div>
-                    <div class="feature-card bg-slate-50 p-8 rounded-xl shadow-lg border border-slate-200">
-                        <div class="text-sky-500 mb-5">
-                            <i class="bi bi-eye-fill text-5xl"></i>
+                    <div class="feature-card bg-slate-50 p-8 rounded-xl shadow-lg border border-slate-200 flex flex-col">
+                        <div class="feature-icon-container text-sky-500 mb-5">
+                            <i class="bi bi-diagram-3-fill text-5xl"></i> <!-- Changed icon for better visual variety -->
                         </div>
                         <h3 class="text-2xl font-semibold text-slate-800 mb-3">직관적인 정보 시각화</h3>
-                        <p class="text-slate-600 leading-relaxed">
-                            검색된 논문 간의 연관성, 주요 키워드, 연구자 네트워크 등을 시각적으로 표현하여 복잡한 정보를 한눈에 이해하도록 돕습니다.
+                        <p class="text-slate-600 leading-relaxed flex-grow">
+                            알츠하이머 연구의 핵심 인자, 관련 경로, 유전자 및 단백질 상호작용, 연구자 네트워크 등을 시각적으로 표현하여 복잡한 정보를 한눈에 이해하도록 돕습니다.
                         </p>
                     </div>
                 </div>
@@ -248,37 +277,37 @@
             <div class="container mx-auto px-6 lg:px-8">
                 <div class="text-center mb-12 md:mb-16">
                     <span class="text-sky-700 font-semibold tracking-wide uppercase">Easy Steps</span>
-                    <h2 class="section-title text-3xl sm:text-4xl mt-2 text-sky-800">메디리서치 AI, 이렇게 사용하세요</h2>
+                    <h2 class="section-title text-3xl sm:text-4xl mt-2 text-sky-800">메디리서치 AI, 이렇게 활용하세요</h2>
                      <p class="text-slate-700 mt-4 max-w-2xl mx-auto text-lg">
-                        단 몇 단계만으로 필요한 의학 정보를 손쉽게 얻을 수 있습니다.
+                        단 몇 단계만으로 필요한 알츠하이머 관련 전문 정보를 손쉽게 얻고 연구에 적용할 수 있습니다.
                     </p>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 text-center">
-                    <div class="p-6">
-                        <div class="bg-white p-6 rounded-full shadow-lg inline-block mb-6 border-4 border-sky-200">
+                    <div class="p-6 flex flex-col items-center">
+                        <div class="step-icon-container bg-white p-6 rounded-full shadow-lg inline-block mb-6 border-4 border-sky-200">
                             <i class="bi bi-chat-quote-fill text-5xl text-sky-600"></i>
                         </div>
-                        <h3 class="text-xl font-semibold text-slate-800 mb-2">1. 질문 입력</h3>
+                        <h3 class="text-xl font-semibold text-slate-800 mb-2">1. 연구 질문 입력</h3>
                         <p class="text-slate-700">
-                            찾고 싶은 의학 정보나 연구 주제에 대해 자연어로 질문하세요. (예: "당뇨병 최신 치료법 알려줘")
+                            알츠하이머 관련 연구 주제나 궁금증을 자연어로 질문하세요. (예: "APOE4 유전자의 알츠하이머병 발병 기전 관련 최신 논문 요약해줘")
                         </p>
                     </div>
-                    <div class="p-6">
-                        <div class="bg-white p-6 rounded-full shadow-lg inline-block mb-6 border-4 border-sky-200">
+                    <div class="p-6 flex flex-col items-center">
+                        <div class="step-icon-container bg-white p-6 rounded-full shadow-lg inline-block mb-6 border-4 border-sky-200">
                             <i class="bi bi-robot text-5xl text-sky-600"></i>
                         </div>
                         <h3 class="text-xl font-semibold text-slate-800 mb-2">2. AI 분석 및 검색</h3>
                         <p class="text-slate-700">
-                            AI가 질문을 분석하고, 하이브리드 검색 엔진을 통해 최적의 논문과 정보를 탐색합니다.
+                            AI가 질문 의도를 분석하고, 알츠하이머 특화 데이터베이스에서 하이브리드 검색 엔진을 통해 최적의 논문과 정보를 탐색합니다.
                         </p>
                     </div>
-                    <div class="p-6">
-                        <div class="bg-white p-6 rounded-full shadow-lg inline-block mb-6 border-4 border-sky-200">
+                    <div class="p-6 flex flex-col items-center">
+                        <div class="step-icon-container bg-white p-6 rounded-full shadow-lg inline-block mb-6 border-4 border-sky-200">
                             <i class="bi bi-file-earmark-text-fill text-5xl text-sky-600"></i>
                         </div>
-                        <h3 class="text-xl font-semibold text-slate-800 mb-2">3. 결과 확인</h3>
+                        <h3 class="text-xl font-semibold text-slate-800 mb-2">3. 맞춤형 결과 확인</h3>
                         <p class="text-slate-700">
-                            요약된 답변과 함께 관련 논문 목록, 주요 정보, 연관 관계 등을 확인하고 연구에 활용하세요.
+                            핵심 요약, 관련 논문 목록, 주요 유전자/단백질 정보, 연관 관계 시각화 등 연구에 바로 활용 가능한 맞춤형 결과를 확인하세요.
                         </p>
                     </div>
                 </div>
@@ -286,15 +315,19 @@
         </section>
         
         <!-- Call to Action Section -->
-        <section class="py-16 md:py-24 bg-slate-800 text-white fade-in-section">
-            <div class="container mx-auto px-6 lg:px-8 text-center">
-                <i class="bi bi-stars text-5xl text-amber-400 mb-6"></i>
-                <h2 class="text-3xl sm:text-4xl font-bold mb-6">지금 바로 의학 연구의 혁신을 경험하세요!</h2>
+        <section class="py-16 md:py-24 bg-slate-800 text-white fade-in-section relative overflow-hidden">
+            <!-- Subtle background pattern -->
+            <div class="absolute inset-0 opacity-5">
+                <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="patt" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M0 15A15 15 0 1030 15A15 15 0 100 15Z" fill="#fff" fill-opacity="0.1"></path></pattern></defs><rect width="100%" height="100%" fill="url(#patt)"></rect></svg>
+            </div>
+            <div class="container mx-auto px-6 lg:px-8 text-center relative z-10">
+                <i class="bi bi-award-fill text-5xl text-amber-400 mb-6 animate-pulse"></i>
+                <h2 class="text-3xl sm:text-4xl font-bold mb-6">지금 바로 알츠하이머 연구의 혁신을 경험하세요!</h2>
                 <p class="text-lg text-slate-300 max-w-xl mx-auto mb-10">
-                    메디리서치 AI가 여러분의 연구 파트너가 되어 드리겠습니다.<br>
-                    더 빠르고, 더 스마트한 연구를 시작해보세요.
+                    메디리서치 AI가 여러분의 알츠하이머 연구 여정에 든든한 파트너가 되어 드리겠습니다.<br>
+                    더 빠르고, 더 스마트한 연구로 치매 정복에 한 걸음 더 다가가세요.
                 </p>
-                <a href="{% url 'api:search_path' %}" class="btn bg-white text-sky-700 hover:bg-sky-50 focus:ring-sky-300 text-lg shadow-xl hover:shadow-2xl">
+                <a href="{% url 'api:search_path' %}" class="btn bg-white text-sky-700 hover:bg-sky-50 focus:ring-sky-300 text-lg shadow-xl hover:shadow-2xl transform hover:scale-110 transition-all duration-300">
                     <i class="bi bi-play-circle-fill mr-2"></i>AI 검색 무료 체험
                 </a>
             </div>
@@ -311,22 +344,22 @@
                         <i class="bi bi-clipboard2-pulse-fill mr-2"></i>
                         <span>메디리서치 AI</span>
                     </a>
-                    <p class="text-sm">의학 연구의 효율성을 높이는 AI 기반 하이브리드 검색 솔루션입니다.</p>
+                    <p class="text-sm">알츠하이머 연구의 효율성을 높이는 AI 기반 하이브리드 검색 솔루션입니다.</p>
                 </div>
                 <div>
                     <h5 class="text-slate-200 font-semibold mb-3 text-lg">바로가기</h5>
                     <ul class="space-y-2 text-sm">
-                        <li><a href="{% url 'api:homepage' %}" class="hover:text-sky-400 transition-colors">Home</a></li>
-                        <li><a href="{% url 'api:search_path' %}" class="hover:text-sky-400 transition-colors">AI 검색</a></li>
-                        <li><a href="{% url 'user:login' %}" class="hover:text-sky-400 transition-colors">로그인</a></li>
-                        <li><a href="{% url 'user:signup' %}" class="hover:text-sky-400 transition-colors">회원가입</a></li>
+                        <li><a href="{% url 'api:homepage' %}" class="hover:text-sky-400 transition-colors duration-300">Home</a></li>
+                        <li><a href="{% url 'api:search_path' %}" class="hover:text-sky-400 transition-colors duration-300">AI 검색</a></li>
+                        <li><a href="{% url 'user:login' %}" class="hover:text-sky-400 transition-colors duration-300">로그인</a></li>
+                        <li><a href="{% url 'user:signup' %}" class="hover:text-sky-400 transition-colors duration-300">회원가입</a></li>
                     </ul>
                 </div>
                 <div>
                     <h5 class="text-slate-200 font-semibold mb-3 text-lg">문의하기</h5>
                     <ul class="space-y-2 text-sm">
-                        <li><i class="bi bi-envelope-fill mr-2 text-sky-500"></i> contact@mediresearch.ai</li>
-                        <li><i class="bi bi-telephone-fill mr-2 text-sky-500"></i> +82 02-1234-5678</li>
+                        <li><a href="mailto:contact@mediresearch.ai" class="hover:text-sky-400 transition-colors duration-300"><i class="bi bi-envelope-fill mr-2 text-sky-500"></i> contact@mediresearch.ai</a></li>
+                        <li><span class="select-all"><i class="bi bi-telephone-fill mr-2 text-sky-500"></i> +82 02-1234-5678</span></li>
                         <li><i class="bi bi-geo-alt-fill mr-2 text-sky-500"></i> 서울 금천구 가산디지털1로 25</li>
                     </ul>
                 </div>
@@ -334,7 +367,7 @@
             <hr class="border-slate-700 my-8">
             <div class="text-center text-sm">
                 <p>&copy; 2024 메디리서치 AI. All Rights Reserved.</p>
-                <p class="text-xs mt-1">본 시스템은 정보 제공 목적으로만 사용되며, 전문적인 의학적 조언을 대체할 수 없습니다.</p>
+                <p class="text-xs mt-1">본 시스템은 알츠하이머 연구 정보 제공 목적으로만 사용되며, 전문적인 의학적 조언이나 진단을 대체할 수 없습니다.</p>
             </div>
         </div>
     </footer>
@@ -345,12 +378,10 @@
         const mobileMenu = document.getElementById('mobileMenu');
         if (mobileMenuButton && mobileMenu) {
             mobileMenuButton.addEventListener('click', () => {
-                mobileMenu.classList.toggle('active');
-                const isExpanded = mobileMenuButton.getAttribute('aria-expanded') === 'true' || false;
-                mobileMenuButton.setAttribute('aria-expanded', !isExpanded);
-                // Change icon on toggle
+                const isActive = mobileMenu.classList.toggle('active');
+                mobileMenuButton.setAttribute('aria-expanded', isActive);
                 const icon = mobileMenuButton.querySelector('i');
-                if (mobileMenu.classList.contains('active')) {
+                if (isActive) {
                     icon.classList.remove('bi-list');
                     icon.classList.add('bi-x-lg');
                 } else {
@@ -363,17 +394,15 @@
         // Fade-in sections on scroll
         const sections = document.querySelectorAll('.fade-in-section');
         const observerOptions = {
-            root: null, // relative to document viewport
+            root: null,
             rootMargin: '0px',
-            threshold: 0.1 // 10% of item height in view
+            threshold: 0.1 
         };
 
         const observer = new IntersectionObserver(function(entries, observer) {
             entries.forEach(function(entry) {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('is-visible');
-                    // Optional: unobserve after animation to save resources
-                    // observer.unobserve(entry.target);
                 }
             });
         }, observerOptions);
@@ -382,19 +411,18 @@
             observer.observe(section);
         });
 
-        // Smooth scroll for internal links (redundant if body scroll-behavior: smooth is set, but good fallback)
+        // Smooth scroll for internal links (using <html> scroll-smooth but this is a fallback or for specific cases)
         document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
             anchor.addEventListener('click', function (e) {
                 const hrefAttribute = this.getAttribute('href');
-                // Ensure it's not just a placeholder href="#"
                 if (hrefAttribute && hrefAttribute.length > 1) { 
                     const targetElement = document.querySelector(hrefAttribute);
                     if (targetElement) {
                         e.preventDefault();
                         targetElement.scrollIntoView({
-                            behavior: 'smooth'
+                            behavior: 'smooth',
+                            block: 'start'
                         });
-                        // Close mobile menu if open and link is clicked
                         if (mobileMenu && mobileMenu.classList.contains('active')) {
                            mobileMenu.classList.remove('active');
                            mobileMenuButton.setAttribute('aria-expanded', 'false');
@@ -406,24 +434,31 @@
                 }
             });
         });
+        
+        // Conditional rendering of Login/Logout buttons based on Django template variable
+        // This part is intended to be processed by Django's templating engine
+        const navDesktop = document.querySelector('nav.hidden.md\\:flex');
+        const mobileNavContainer = document.getElementById('mobileMenu'); // Assuming mobile menu items are direct children or need specific targeting
 
-        const nav = document.querySelector('nav.hidden.md\\:flex');
-        const isLoggedIn = '{{ request.user.is_authenticated|yesno:"true,false" }}' === 'true'; // Ensure proper string comparison
+        const isLoggedIn = '{{ request.user.is_authenticated|yesno:"true,false" }}' === 'true';
 
-        if (isLoggedIn) {
-            // Remove 로그인 and 회원가입 buttons
-            const loginButton = nav.querySelector('a[href="{% url 'user:login' %}"]');
-            const signupButton = nav.querySelector('a[href="{% url 'user:signup' %}"]');
-            if (loginButton) { loginButton.remove(); }
-            if (signupButton) { signupButton.remove(); }
+        if (navDesktop) { // For Desktop Navigation
+            const loginButtonDesktop = navDesktop.querySelector('a[href="{% url "user:login" %}"]');
+            const signupButtonDesktop = navDesktop.querySelector('a[href="{% url "user:signup" %}"]');
 
-            // Add 로그아웃 button
-            const logoutButton = document.createElement('a');
-            logoutButton.href = '{% url 'user:logout' %}';
-            logoutButton.className = 'text-gray-600 hover:text-sky-600 hover:bg-sky-50 px-4 py-2 rounded-md text-base font-medium transition-colors';
-            logoutButton.innerHTML = '<i class="bi bi-box-arrow-right mr-1"></i>로그아웃';
-            nav.appendChild(logoutButton);
+            if (isLoggedIn) {
+                if (loginButtonDesktop) loginButtonDesktop.remove();
+                if (signupButtonDesktop) signupButtonDesktop.remove();
+
+                const logoutButtonDesktop = document.createElement('a');
+                logoutButtonDesktop.href = '{% url "user:logout" %}';
+                logoutButtonDesktop.className = 'text-gray-600 hover:text-sky-600 hover:bg-sky-50 px-4 py-2 rounded-md text-base font-medium transition-colors';
+                logoutButtonDesktop.innerHTML = '<i class="bi bi-box-arrow-right mr-1"></i>로그아웃';
+                navDesktop.appendChild(logoutButtonDesktop);
+            }
         }
+
+
 
     </script>
 </body>

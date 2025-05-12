@@ -93,6 +93,7 @@ MediSearch AI는 알츠하이머 관련 의학 논문 검색을 위한 고급 RA
 ├── templates/           # HTML 템플릿
 │   ├── api/             # 메인 앱 템플릿
 │   └── user/            # 사용자 인증 템플릿
+├── tutorial/            # 사용자 매뉴얼
 ├── user/                # 로그인, 회원가입 구현
 ├── requirements.txt     # 의존성 패키지 목록
 └── manage.py            # Django 관리 스크립트

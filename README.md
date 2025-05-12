@@ -55,6 +55,7 @@ MediSearch AI는 알츠하이머 관련 의학 논문 검색을 위한 고급 RA
 | **RAG 파이프라인** | ![LangChain](https://img.shields.io/badge/LangChain-005F73?style=for-the-badge&logo=Chainlink&logoColor=white) ![LangGraph](https://img.shields.io/badge/LangGraph-00A86B?style=for-the-badge&logo=Chainlink&logoColor=white) |
 | **AI 모델** | ![Google Gemini](https://img.shields.io/badge/Google%20Gemini-4285F4?style=for-the-badge&logo=Google&logoColor=white) ![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=OpenAI&logoColor=white) |
 | **프론트엔드** | ![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-38B2AC?style=for-the-badge&logo=Tailwind-CSS&logoColor=white) ![Bootstrap Icons](https://img.shields.io/badge/Bootstrap%20Icons-7952B3?style=for-the-badge&logo=Bootstrap&logoColor=white) |
+| **협업 도구** | ![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white) ![Discord](https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=Discord&logoColor=white) |
 
 ## 4. 시스템 아키텍처
 
@@ -113,11 +114,6 @@ MediSearch AI는 알츠하이머 관련 의학 논문 검색을 위한 고급 RA
 | **AI 모델 통합** | LLM 통합 및 튜닝 | - Gemini 모델 통합<br>- 프롬프트 엔지니어링<br>- 응답 생성 최적화 |
 | **백엔드 개발** | Django 서버 구현 | - API 엔드포인트 개발<br>- 사용자 인증 시스템<br>- 데이터 캐싱 |
 | **프론트엔드 개발** | UI/UX 구현 | - 반응형 웹 디자인<br>- 채팅 인터페이스 구현<br>- 결과 시각화 |
-
-### ✅ 협업 도구
-
-- **코드 관리**: GitHub
-- **커뮤니케이션**: Discord
 
 ## 7. 주요 기능
 

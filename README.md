@@ -3,8 +3,6 @@
 - **주제:** 알츠하이머 연구를 위한 의학 논문 검색 시스템
 - **개발 기간:** 2025.05.09 ~ 2025.05.12
 
----
-
 ## 📌 목차
 
 - [1. 팀 소개](#1-팀-소개)
@@ -17,8 +15,6 @@
 - [8. 설치 및 실행 가이드](#8-설치-및-실행-가이드)
 - [9. 한 줄 회고](#9-한-줄-회고)
 
----
-
 ## 1. 팀 소개
 
 ### ✅ 팀명: MediSearch AI
@@ -28,7 +24,7 @@
 
 | 황인호 | 경규휘 | 권석현 | 이종원 | 장윤홍 |
 |--------|--------|--------|--------|--------|
-| | |  | | |
+|![1](https://i.namu.wiki/i/BOFPH8CsaM0suQ8bAwqQnSG1oZA3uzqmumxC6EOPnO1Y2jVraSnYFk4_02WdTMIiqzyXPmlca6ubpjuC76lwSDskcZ4Rb5WuIEZFcTvWw5szzMfIc0Kc7czfaYjQ2l1E2vlAk_eBkuBPUDrf6Wj8QA.webp)|![2](https://i.namu.wiki/i/Em1fmJtX3WTg4ATja4AbmudnC9N-y3kmaXdSw0qObITjYriIhSmuA8lIupUDgAZuhzgN-J8W3npi-8WQJu9-48eEh_Lvwl_mn0e4BXcMRDjypXxbuQ-WZuVdp94KH__lAc7zJopu3qlfv5Ftt61NxQ.webp)|![3](https://i.namu.wiki/i/qzrnG62_SvgqNMlELLr8zihfaylbiKrM4aVl15zPXuYYXlGgUhPtQ2S6KeylnXtENeKVpSoXNe5FOft4vb-9d8f6dK4KMJAlLpFou3Y0qv0lzxJqaVwG7s7Ld97VKUe8HUSXQo_aUuDXotZEE3eaQQ.webp) |![4](https://i.namu.wiki/i/DOwF6eRC1e7PaUlayI_nCI3Jxv3a4kuKNFk-S9VhpboFYFHrLLwh0__T5fPWTXDud_WsD3vnyMFJfAUnmZ3hVSuPqpoHVrhr6qvbIk28IE0J7Skjig6jXGowTyIvQEzX0u1IvIBZ1Wa9v_mzFKMjJg.webp)|![5](https://i.namu.wiki/i/q-wkyXm5gShTOpkJ3Rzag5qm3Y-3CpZtaGXTf4j8xmHgLBeMDO-hUHY5aL9sMnkFjb5k2DnUnKgAiST29Mdi4e-1CR_kpf2tlQ62WZlvusUBWWZR7iK1WU4DgTFN9W40im9lslS3pr-fsUvCY-roAw.webp)|
 
 ---
 

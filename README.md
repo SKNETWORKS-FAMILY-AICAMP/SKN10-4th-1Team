@@ -3,21 +3,17 @@
 - **주제:** 알츠하이머 연구를 위한 의학 논문 검색 시스템
 - **개발 기간:** 2025.05.09 ~ 2025.05.12
 
----
-
 ## 📌 목차
 
-- [01. 팀 소개](#01-팀-소개)
-- [02. 프로젝트 개요](#02-프로젝트-개요)
-- [03. 기술 스택](#03-기술-스택)
-- [04. 시스템 아키텍처](#04-시스템-아키텍처)
-- [05. 디렉토리 구조](#05-디렉토리-구조)
-- [06. 팀 구성 및 역할](#06-팀-구성-및-역할)
-- [07. 주요 기능](#07-주요-기능)
-- [08. 설치 및 실행 가이드](#08-설치-및-실행-가이드)
-- [09. 향후 개선 계획](#09-향후-개선-계획)
-
----
+- [1. 팀 소개](#1-팀-소개)
+- [2. 프로젝트 개요](#2-프로젝트-개요)
+- [3. 기술 스택](#3-기술-스택)
+- [4. 시스템 아키텍처](#4-시스템-아키텍처)
+- [5. 디렉토리 구조](#5-디렉토리-구조)
+- [6. 팀 구성 및 역할](#6-팀-구성-및-역할)
+- [7. 주요 기능](#7-주요-기능)
+- [8. 설치 및 실행 가이드](#8-설치-및-실행-가이드)
+- [9. 한 줄 회고](#9-한-줄-회고)
 
 ## 1. 팀 소개
 
@@ -28,7 +24,7 @@
 
 | 황인호 | 경규휘 | 권석현 | 이종원 | 장윤홍 |
 |--------|--------|--------|--------|--------|
-| 기술 설계 | RAG 개발 | 백엔드 개발 | 프론트엔드 개발 | 데이터 처리 |
+|![1](https://i.namu.wiki/i/BOFPH8CsaM0suQ8bAwqQnSG1oZA3uzqmumxC6EOPnO1Y2jVraSnYFk4_02WdTMIiqzyXPmlca6ubpjuC76lwSDskcZ4Rb5WuIEZFcTvWw5szzMfIc0Kc7czfaYjQ2l1E2vlAk_eBkuBPUDrf6Wj8QA.webp)|![2](https://i.namu.wiki/i/Em1fmJtX3WTg4ATja4AbmudnC9N-y3kmaXdSw0qObITjYriIhSmuA8lIupUDgAZuhzgN-J8W3npi-8WQJu9-48eEh_Lvwl_mn0e4BXcMRDjypXxbuQ-WZuVdp94KH__lAc7zJopu3qlfv5Ftt61NxQ.webp)|![3](https://i.namu.wiki/i/qzrnG62_SvgqNMlELLr8zihfaylbiKrM4aVl15zPXuYYXlGgUhPtQ2S6KeylnXtENeKVpSoXNe5FOft4vb-9d8f6dK4KMJAlLpFou3Y0qv0lzxJqaVwG7s7Ld97VKUe8HUSXQo_aUuDXotZEE3eaQQ.webp) |![4](https://i.namu.wiki/i/DOwF6eRC1e7PaUlayI_nCI3Jxv3a4kuKNFk-S9VhpboFYFHrLLwh0__T5fPWTXDud_WsD3vnyMFJfAUnmZ3hVSuPqpoHVrhr6qvbIk28IE0J7Skjig6jXGowTyIvQEzX0u1IvIBZ1Wa9v_mzFKMjJg.webp)|![5](https://i.namu.wiki/i/q-wkyXm5gShTOpkJ3Rzag5qm3Y-3CpZtaGXTf4j8xmHgLBeMDO-hUHY5aL9sMnkFjb5k2DnUnKgAiST29Mdi4e-1CR_kpf2tlQ62WZlvusUBWWZR7iK1WU4DgTFN9W40im9lslS3pr-fsUvCY-roAw.webp)|
 
 ---
 
@@ -44,7 +40,6 @@ MediSearch AI는 알츠하이머 관련 의학 논문 검색을 위한 고급 RA
 - **하이브리드 검색 시스템**: 벡터 검색, 그래프 검색, 하이브리드 검색 모드 지원
 - **논문 관계 분석**: 저자, 키워드, 주제 간의 연결 관계 시각화
 - **LLM 기반 응답 생성**: Google Gemini 모델을 활용한 정확한 정보 요약
-- **다국어 지원**: 한국어 질의에 대한 한국어 응답 생성
 
 ## 3. 기술 스택
 
@@ -73,7 +68,31 @@ MediSearch AI는 알츠하이머 관련 의학 논문 검색을 위한 고급 RA
 
 ### ✅ RAG 파이프라인 구성
 
-![RAG 시스템 아키텍처](https://i.imgur.com/7FxRUwy.png)
+```mermaid
+sequenceDiagram
+    participant 사용자
+    participant 파이프라인 as HybridGraphFlow
+    participant LLM_쿼리분석 as LLM (쿼리 분석)
+    participant 검색모듈 as 정보 검색 (벡터/그래프 DB)
+    participant LLM_답변생성 as LLM (답변 생성)
+
+    사용자->>파이프라인: "비만과 고혈압 연관성은?"
+    activate 파이프라인
+    파이프라인->>LLM_쿼리분석: 이 질문은 어떤 검색이 좋을까?
+    activate LLM_쿼리분석
+    LLM_쿼리분석-->>파이프라인: "의미 검색과 관계 검색 둘 다 필요! (하이브리드)"
+    deactivate LLM_쿼리분석
+    파이프라인->>검색모듈: "비만", "고혈압" 관련 논문 검색 및 관계 정보 탐색!
+    activate 검색모듈
+    검색모듈-->>파이프라인: 관련 논문 목록과 주요 연결 정보 전달
+    deactivate 검색모듈
+    파이프라인->>LLM_답변생성: 이 정보들로 답변 만들어줘!
+    activate LLM_답변생성
+    LLM_답변생성-->>파이프라인: "비만과 고혈압은 밀접한 연관이 있습니다..." (생성된 답변)
+    deactivate LLM_답변생성
+    파이프라인-->>사용자: 답변 전달
+    deactivate 파이프라인
+```
 
 - **HybridGraphFlow**: LangGraph 기반 워크플로우 관리 및 검색 전략 결정
 - **Neo4jVectorSearch**: 벡터 검색 및 그래프 기반 리랭킹 수행
@@ -129,7 +148,6 @@ MediSearch AI는 알츠하이머 관련 의학 논문 검색을 위한 고급 RA
 ### ✅ 로그인/회원가입
 
 - 사용자 인증 시스템
-- 검색 히스토리 저장
 - 개인화된 검색 환경 제공
 
 ### ✅ 화면 구성
@@ -187,18 +205,12 @@ python manage.py runserver
 http://localhost:8000
 ```
 
-## 9. 향후 개선 계획
+## 9. 한 줄 회고
+- **황인호** : 
+- **경규휘** : 
+- **권석현** :
+- **이종원** : 
+- **장윤홍** : 
 
-### ✅ 기능 개선 계획
 
-- **실시간 데이터 업데이트**: 최신 PubMed 논문 자동 추가 시스템
-- **개인화 검색**: 사용자 관심사 기반 맞춤형 결과 제공
-- **그래프 시각화 개선**: 논문 간 연결 관계 시각화 인터페이스 고도화
-- **모바일 최적화**: 모바일 환경에서의 사용성 개선
 
-### ✅ 기술 개선 계획
-
-- **Neo4j 벡터 인덱스 최적화**: 검색 속도 및 정확도 향상
-- **LangGraph 워크플로우 고도화**: 더 복잡한 검색 패턴 지원
-- **다양한 모델 지원**: 추가 LLM 모델 통합 (Claude, Llama 등)
-- **다국어 지원 확장**: 영어, 한국어 외 추가 언어 지원
